@@ -3,7 +3,7 @@ using System.Net;
 using FluentAssertions;
 using Xunit;
 
-namespace IPAddresses.Tests
+namespace MBW.Utilities.IPAddresses.Tests
 {
     public class IPv4Tests
     {

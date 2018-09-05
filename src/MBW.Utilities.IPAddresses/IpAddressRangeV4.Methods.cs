@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using IPAddresses.Helpers;
+using MBW.Utilities.IPAddresses.Helpers;
 
-namespace IPAddresses
+namespace MBW.Utilities.IPAddresses
 {
     public partial struct IpAddressRangeV4
     {

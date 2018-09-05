@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 
-namespace IPAddresses
+namespace MBW.Utilities.IPAddresses
 {
     public partial class IpAddressRange
     {

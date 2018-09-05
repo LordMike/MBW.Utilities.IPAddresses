@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-namespace IPAddresses.Benchmarks
+namespace MBW.Utilities.IPAddresses.Benchmarks
 {
     public class ParseIPv4s
     {

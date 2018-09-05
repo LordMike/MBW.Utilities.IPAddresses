@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Code;
 
-namespace IPAddresses.Benchmarks
+namespace MBW.Utilities.IPAddresses.Benchmarks
 {
     public class FindCommonPrefix
     {

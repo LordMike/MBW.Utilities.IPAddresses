@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace IPAddresses
+namespace MBW.Utilities.IPAddresses
 {
     public partial struct IpAddressRangeV4 : IComparable, IComparable<IpAddressRangeV4>, IEquatable<IpAddressRangeV4>
     {

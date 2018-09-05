@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace IPAddresses
+namespace MBW.Utilities.IPAddresses.Helpers
 {
     internal static class DebugHelpers
     {

@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace IPAddresses.Tests
+namespace MBW.Utilities.IPAddresses.Tests
 {
     public class IPv6Tests
     {

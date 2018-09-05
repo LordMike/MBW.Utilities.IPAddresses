@@ -1,4 +1,4 @@
-﻿namespace IPAddresses.Helpers
+﻿namespace MBW.Utilities.IPAddresses.Helpers
 {
 	internal static class BitUtilities
 	{

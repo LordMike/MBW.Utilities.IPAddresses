@@ -1,4 +1,4 @@
-﻿namespace IPAddresses
+﻿namespace MBW.Utilities.IPAddresses
 {
     public enum IpAddressRangeType
     {

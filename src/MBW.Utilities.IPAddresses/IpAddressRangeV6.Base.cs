@@ -2,9 +2,9 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using IPAddresses.Helpers;
+using MBW.Utilities.IPAddresses.Helpers;
 
-namespace IPAddresses
+namespace MBW.Utilities.IPAddresses
 {
     public partial struct IpAddressRangeV6
     {

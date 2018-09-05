@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Running;
 
-namespace IPAddresses.Benchmarks
+namespace MBW.Utilities.IPAddresses.Benchmarks
 {
     public class Program
     {

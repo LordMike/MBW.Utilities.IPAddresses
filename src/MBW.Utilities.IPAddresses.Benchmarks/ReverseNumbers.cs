@@ -1,8 +1,8 @@
 ﻿using System;
 using BenchmarkDotNet.Attributes;
-using IPAddresses.Helpers;
+using MBW.Utilities.IPAddresses.Helpers;
 
-namespace IPAddresses.Benchmarks
+namespace MBW.Utilities.IPAddresses.Benchmarks
 {
     public class ReverseNumbers
     {

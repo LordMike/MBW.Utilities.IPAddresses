@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Net;
-using System.Text.RegularExpressions;
 
-namespace IPAddresses
+namespace MBW.Utilities.IPAddresses
 {
     public partial struct IpAddressRangeV4
     {
