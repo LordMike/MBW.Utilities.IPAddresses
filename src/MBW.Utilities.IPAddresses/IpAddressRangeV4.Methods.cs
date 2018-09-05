@@ -1,0 +1,129 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using IPAddresses.Helpers;
+
+namespace IPAddresses
+{
+    public partial struct IpAddressRangeV4
+    {
+        public bool Contains(IpAddressRangeV4 other)
+        {
+            bool canBeInNetwork = _mask < other._mask;
+            uint otherMaskedToThisNetwork = other._address & (uint.MaxValue << _mask);
+            bool isInNetwork = (otherMaskedToThisNetwork & _address) == otherMaskedToThisNetwork;
+
+            return canBeInNetwork && isInNetwork;
+        }
+
+        public bool ContainsOrEqual(IpAddressRangeV4 other)
+        {
+            bool canBeInNetwork = _mask <= other._mask;
+            bool isInNetwork = (_address & other._address) == _address;
+
+            return canBeInNetwork && isInNetwork;
+        }
+
+        public bool IsContainedIn(IpAddressRangeV4 other)
+        {
+            return other.Contains(this);
+        }
+
+        public bool IsContainedInOrEqual(IpAddressRangeV4 other)
+        {
+            return other.ContainsOrEqual(this);
+        }
+
+        public static IpAddressRangeV4 MakeSupernet(params IpAddressRangeV4[] others)
+        {
+            return MakeSupernet((IEnumerable<IpAddressRangeV4>)others);
+        }
+
+        public static IpAddressRangeV4 MakeSupernet(IEnumerable<IpAddressRangeV4> others)
+        {
+            byte shortestMask = 32;
+            bool hadAny = false;
+            uint final = uint.MaxValue;
+
+            foreach (IpAddressRangeV4 range in others)
+            {
+                final &= range._address;
+
+                byte lowestCommon = BitUtilities.FindCommonPrefixSize(final, range._address);
+                shortestMask = Math.Min(shortestMask, lowestCommon);
+
+                hadAny = true;
+            }
+
+            if (!hadAny)
+                throw new ArgumentException("Input was empty", nameof(others));
+
+            return new IpAddressRangeV4(final, shortestMask);
+        }
+
+        public override string ToString()
+        {
+            return ToString(false);
+        }
+
+        public string ToString(bool forceCidr)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append(Address);
+
+            if (forceCidr || _mask != 32)
+                sb.Append("/").Append(_mask.ToString());
+
+            return sb.ToString();
+        }
+
+        public string ToPrefixString()
+        {
+            if (_mask <= 8 && (_address & 0xFFFFFF) == 0)
+            {
+                // Return 1 octet
+                return (_address >> 24) + "/" + _mask;
+            }
+
+            if (_mask <= 16 && (_address & 0xFFFF) == 0)
+            {
+                // Return 2 octets
+                return (_address >> 24) + "." + ((_address >> 16) & 0xFF) + "/" + _mask;
+            }
+            if (_mask <= 24 && (_address & 0xFF) == 0)
+            {
+                // Return 3 octets
+                return (_address >> 24) + "." + ((_address >> 16) & 0xFF) + "." + ((_address >> 8) & 0xFF) + "/" + _mask;
+
+            }
+
+            return ToString(false);
+        }
+
+        public byte[] AddressToBytes()
+        {
+            byte[] res = new byte[4];
+            res[0] = (byte)((_address >> 24) & 0xFF);
+            res[1] = (byte)((_address >> 16) & 0xFF);
+            res[2] = (byte)((_address >> 8) & 0xFF);
+            res[3] = (byte)(_address & 0xFF);
+
+            return res;
+        }
+
+        public void AddressToBytes(byte[] bytes, int offset = 0)
+        {
+            if (bytes == null)
+                throw new ArgumentNullException(nameof(bytes));
+
+            if (bytes.Length - offset < 4)
+                throw new ArgumentOutOfRangeException(nameof(offset));
+
+            bytes[offset] = (byte)((_address >> 24) & 0xFF);
+            bytes[offset + 1] = (byte)((_address >> 16) & 0xFF);
+            bytes[offset + 2] = (byte)((_address >> 8) & 0xFF);
+            bytes[offset + 3] = (byte)(_address & 0xFF);
+        }
+    }
+}

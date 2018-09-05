@@ -1,0 +1,28 @@
+﻿To support
+Parsing
+- Parse()
+- TryParse()
+- Implicit str->parsing
+Set theory / Comparison
+- Contains
+- ContainsOrEqual
+- IsContainedIn
+- IsContainedInOrEqual
+- Compare()
+- Equals()
+- LessThan, GreaterThan, Equality, NotEqual operators
+- Bitwise AND, OR, NOT, ..?
+- MakeSupernet(inputs)
+Presentation
+- Raw, as integers
+- ToString()                     Short version of IP+cidr (if needed)
+- ToCidrString()                 Full version of IP+cidr
+- ToPrefixString()				 Short (prefix) version of IP+cidr
+- IPv6: ToDecimalDotted()        Dotted version+cidr (if needed)
+- IPv6: ToDecimalDottedCidr()    Dotted version+cidr
+- ToBytes()
+- ToBytes(arr, offset)
+
+Notes:
+	Big Endian		=  Network Order	=>				256 = 0x0100
+	Little Endian	=  Host Order		=> "Reverse"	256 = 0x0001

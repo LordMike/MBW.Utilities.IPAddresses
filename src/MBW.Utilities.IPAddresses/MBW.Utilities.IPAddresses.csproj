@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\imports\Common.targets" />
+  <Import Project="..\..\imports\SourceLink.targets" />
+  <Import Project="..\..\imports\Properties.targets" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>
