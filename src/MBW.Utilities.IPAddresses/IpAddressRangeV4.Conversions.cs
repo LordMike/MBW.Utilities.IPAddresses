@@ -21,11 +21,11 @@ namespace MBW.Utilities.IPAddresses
                 return false;
             }
 
-            byte currentOctet = 0;
+            ushort currentOctet = 0;
             byte dots = 0;
             uint ip = 0;
-            bool hadData = false;
             bool isCidr = false;
+            bool expectNumber = true;
 
             for (int i = 0; i < value.Length; i++)
             {
@@ -33,7 +33,13 @@ namespace MBW.Utilities.IPAddresses
 
                 if (ch == '.')
                 {
-                    if (!hadData)
+                    if (expectNumber)
+                    {
+                        result = default;
+                        return false;
+                    }
+
+                    if (currentOctet > byte.MaxValue)
                     {
                         result = default;
                         return false;
@@ -42,7 +48,7 @@ namespace MBW.Utilities.IPAddresses
                     ip <<= 8;
                     ip += currentOctet;
                     currentOctet = 0;
-                    hadData = false;
+                    expectNumber = true;
 
                     if (++dots > 3)
                     {
@@ -55,7 +61,7 @@ namespace MBW.Utilities.IPAddresses
 
                 if ('0' <= ch && ch <= '9')
                 {
-                    hadData = true;
+                    expectNumber = false;
                     currentOctet *= 10;
                     currentOctet += (byte)(ch - '0');
 
@@ -64,10 +70,22 @@ namespace MBW.Utilities.IPAddresses
 
                 if (ch == '/')
                 {
+                    if (expectNumber)
+                    {
+                        result = default;
+                        return false;
+                    }
+
+                    if (currentOctet > byte.MaxValue)
+                    {
+                        result = default;
+                        return false;
+                    }
+
                     ip <<= 8;
                     ip += currentOctet;
                     currentOctet = 0;
-                    hadData = false;
+                    expectNumber = true;
 
                     isCidr = true;
 
@@ -78,10 +96,16 @@ namespace MBW.Utilities.IPAddresses
                 return false;
             }
 
+            if (expectNumber)
+            {
+                result = default;
+                return false;
+            }
+
             if (isCidr)
             {
                 // Add last octet as mask
-                if (currentOctet > 32 || !hadData)
+                if (currentOctet > 32)
                 {
                     result = default;
                     return false;
@@ -89,12 +113,23 @@ namespace MBW.Utilities.IPAddresses
             }
             else
             {
+                if (currentOctet > byte.MaxValue)
+                {
+                    result = default;
+                    return false;
+                }
+
                 ip <<= 8;
                 ip += currentOctet;
                 currentOctet = 32;
             }
 
-            result = new IpAddressRangeV4(ip, currentOctet);
+            // Handle cases like "192.168" => "192.168.0.0"
+            int toMove = 3 - dots;
+            if (toMove > 0)
+                ip <<= 8 * toMove;
+
+            result = new IpAddressRangeV4(ip, (byte)currentOctet);
             return true;
         }
 
