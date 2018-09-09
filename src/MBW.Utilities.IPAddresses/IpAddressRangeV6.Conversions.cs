@@ -16,14 +16,17 @@ namespace MBW.Utilities.IPAddresses
 
         public static bool TryParse(string value, out IpAddressRangeV6 result)
         {
-            if (string.IsNullOrEmpty(value) || value.Length > 49)
+            return TryParse(value.AsSpan(), out result);
+        }
+
+        public static bool TryParse(ReadOnlySpan<char> value, out IpAddressRangeV6 result)
+        {
+            if (value.Length == 0 || value.Length > 49)
             {
                 result = default;
                 return false;
             }
-
-            ReadOnlySpan<char> @string = value.AsSpan();
-
+            
             ulong high = 0;
             ulong low = 0;
             byte mask = 0;
@@ -52,9 +55,9 @@ namespace MBW.Utilities.IPAddresses
             }
 
             // Find mask, read reverse
-            for (int i = @string.Length - 1; i >= 0; i--)
+            for (int i = value.Length - 1; i >= 0; i--)
             {
-                char ch = @string[i];
+                char ch = value[i];
 
                 if (ch == ':' || ch == '.' || 'A' <= ch && ch <= 'F' || 'a' <= ch && ch <= 'f')
                 {
@@ -66,7 +69,7 @@ namespace MBW.Utilities.IPAddresses
                 if (ch == '/')
                 {
                     // Mask has been read, cut off the mask
-                    @string = @string.Slice(0, i);
+                    value = value.Slice(0, i);
                     break;
                 }
 
@@ -87,7 +90,7 @@ namespace MBW.Utilities.IPAddresses
             // Read from front, until :: is met
             bool doReverse = false;
 
-            while (@string.Length > 0)
+            while (value.Length > 0)
             {
                 ushort currentTuplet = 0;
 
@@ -95,7 +98,7 @@ namespace MBW.Utilities.IPAddresses
                 int i;
                 for (i = 0; i < 4; i++)
                 {
-                    char ch = @string[i];
+                    char ch = value[i];
 
                     if (ch == ':')
                         break;
@@ -111,18 +114,18 @@ namespace MBW.Utilities.IPAddresses
                 }
 
                 SetTuplet(idx++, currentTuplet);
-                @string = @string.Slice(i);
+                value = value.Slice(i);
 
-                if (@string.Length == 0)
+                if (value.Length == 0)
                     break;
 
                 // Check if next char is ':'
-                if (@string[0] == ':')
+                if (value[0] == ':')
                 {
-                    @string = @string.Slice(1);
+                    value = value.Slice(1);
 
                     // Check if next again is ':' too
-                    if (@string[0] == ':')
+                    if (value[0] == ':')
                     {
                         // We need to parse backwards now
                         doReverse = true;
@@ -137,17 +140,39 @@ namespace MBW.Utilities.IPAddresses
             {
                 idx = 7;
 
-                while (@string.Length > 0)
+                while (value.Length > 0)
                 {
-                    ushort currentTuplet = 0;
-
                     // Read up to 4 chars
                     // Find ':'
 
-                    int lastIdx = StringUtilities.ReverseIndexOf(@string, ':');
+                    int lastIdx = StringUtilities.ReverseIndexOf(value, ':');
 
-                    ReadOnlySpan<char> segment = @string.Slice(lastIdx + 1);
-                    @string = @string.Slice(0, lastIdx);
+                    if (lastIdx == 0 && value.Length >= 7)
+                    {
+                        // This could be an IPv4 address - definitely not IPv6
+                        if (!IpAddressRangeV4.TryParse(value.Slice(1), out var ipv4))
+                        {
+                            result = default;
+                            return false;
+                        }
+
+                        low += ipv4.AddressUint;
+                        result = new IpAddressRangeV6(high, low, mask);
+
+                        return true;
+                    }
+
+                    if (lastIdx <= 0 && value.Length > 5)
+                    {
+                        // This is definitely not IPv6
+                        result = default;
+                        return false;
+                    }
+                    
+                    ushort currentTuplet = 0;
+
+                    ReadOnlySpan<char> segment = value.Slice(lastIdx + 1);
+                    value = value.Slice(0, lastIdx);
 
                     if (segment.Length == 0 || segment.Length > 4)
                         // We cannot have two "::" segments, cannot have longer than 4 chars

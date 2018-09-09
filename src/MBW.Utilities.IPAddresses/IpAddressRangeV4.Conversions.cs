@@ -15,7 +15,12 @@ namespace MBW.Utilities.IPAddresses
 
         public static bool TryParse(string value, out IpAddressRangeV4 result)
         {
-            if (string.IsNullOrEmpty(value) || value.Length > 18)
+            return TryParse(value.AsSpan(), out result);
+        }
+
+        public static bool TryParse(ReadOnlySpan<char> value, out IpAddressRangeV4 result)
+        {
+            if (value.Length == 0 || value.Length > 18)
             {
                 result = default;
                 return false;
