@@ -39,10 +39,10 @@ namespace MBW.Utilities.IPAddresses
                 return false;
             }
 
-            Group maskMtch = match.Groups[2];
-            if (maskMtch.Success)
+            Group maskMatch = match.Groups[2];
+            if (maskMatch.Success)
             {
-                mask = byte.Parse(maskMtch.Value);
+                mask = byte.Parse(maskMatch.Value);
                 if (mask > 128)
                 {
                     result = default;
