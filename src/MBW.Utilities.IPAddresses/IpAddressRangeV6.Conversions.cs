@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses
 {
@@ -30,7 +31,7 @@ namespace MBW.Utilities.IPAddresses
 
             void SetTuplet(byte index, ulong newValue)
             {
-                if (index < 5)
+                if (index < 4)
                     high |= newValue << ((3 - index) * 16);
                 else
                     low |= newValue << ((7 - index) * 16);
@@ -55,7 +56,7 @@ namespace MBW.Utilities.IPAddresses
             {
                 char ch = @string[i];
 
-                if (ch == ':' || 'A' <= ch && ch <= 'F' || 'a' <= ch && ch <= 'f')
+                if (ch == ':' || ch == '.' || 'A' <= ch && ch <= 'F' || 'a' <= ch && ch <= 'f')
                 {
                     // No mask provided
                     mask = 128;
@@ -112,6 +113,9 @@ namespace MBW.Utilities.IPAddresses
                 SetTuplet(idx++, currentTuplet);
                 @string = @string.Slice(i);
 
+                if (@string.Length == 0)
+                    break;
+
                 // Check if next char is ':'
                 if (@string[0] == ':')
                 {
@@ -140,7 +144,7 @@ namespace MBW.Utilities.IPAddresses
                     // Read up to 4 chars
                     // Find ':'
 
-                    int lastIdx = @string.LastIndexOf(':');
+                    int lastIdx = StringUtilities.ReverseIndexOf(@string, ':');
 
                     ReadOnlySpan<char> segment = @string.Slice(lastIdx + 1);
                     @string = @string.Slice(0, lastIdx);
