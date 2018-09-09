@@ -19,33 +19,33 @@ namespace MBW.Utilities.IPAddresses
         {
             if (string.IsNullOrEmpty(value) || value.Length > 49)
             {
-                result = default(IpAddressRangeV6);
+                result = default;
                 return false;
             }
 
             // TODO: High perf parser
-            Match mtch = IpRegex.Match(value);
-            if (!mtch.Success)
+            Match match = IpRegex.Match(value);
+            if (!match.Success)
             {
-                result = default(IpAddressRangeV6);
+                result = default;
                 return false;
             }
 
             byte mask = 128;
 
-            if (!IPAddress.TryParse(mtch.Groups[1].Value, out IPAddress ip) || ip.AddressFamily != AddressFamily.InterNetworkV6)
+            if (!IPAddress.TryParse(match.Groups[1].Value, out IPAddress ip) || ip.AddressFamily != AddressFamily.InterNetworkV6)
             {
-                result = default(IpAddressRangeV6);
+                result = default;
                 return false;
             }
 
-            Group maskMtch = mtch.Groups[2];
+            Group maskMtch = match.Groups[2];
             if (maskMtch.Success)
             {
                 mask = byte.Parse(maskMtch.Value);
                 if (mask > 128)
                 {
-                    result = default(IpAddressRangeV6);
+                    result = default;
                     return false;
                 }
             }
