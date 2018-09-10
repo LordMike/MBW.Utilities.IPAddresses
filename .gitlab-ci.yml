@@ -27,7 +27,7 @@ benchmark-ipv4:
   stage: test
   script:
     - dotnet restore
-    - (cd src/MBW.Utilities.IPAddresses.Benchmarks; dotnet run -c RELEASE -- --class=ParseIPv4Strategies)
+    - (cd src/MBW.Utilities.IPAddresses.Benchmarks; dotnet run -c RELEASE -- -f ParseIPv4Strategies)
   dependencies:
   - build
 
@@ -35,7 +35,7 @@ benchmark-ipv6:
   stage: test
   script:
     - dotnet restore
-    - (cd src/MBW.Utilities.IPAddresses.Benchmarks; dotnet run -c RELEASE -- --class=ParseIPv6Strategies)
+    - (cd src/MBW.Utilities.IPAddresses.Benchmarks; dotnet run -c RELEASE -- -f ParseIPv6Strategies)
   dependencies:
   - build
 
