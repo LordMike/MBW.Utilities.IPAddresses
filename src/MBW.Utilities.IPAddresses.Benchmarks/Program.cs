@@ -13,7 +13,8 @@ namespace MBW.Utilities.IPAddresses.Benchmarks
                 typeof(ParseIPv4s),
                 typeof(ReverseNumbers),
                 typeof(ParseIPv4Strategies),
-                typeof(ParseIPv6Strategies)
+                typeof(ParseIPv6Strategies),
+                typeof(TokenizerTest)
             });
 
             switcher.Run(args);

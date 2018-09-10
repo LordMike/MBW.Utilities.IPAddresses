@@ -11,7 +11,7 @@ namespace MBW.Utilities.IPAddresses
             if (TryParse(value, out IpAddressRangeV6 result))
                 return result;
 
-            throw new ArgumentException("Argument was not a valid IPv6 range", nameof(value));
+            throw new ArgumentException($"Argument was not a valid IPv6 range, value: {value}", nameof(value));
         }
 
         public static bool TryParse(string value, out IpAddressRangeV6 result)
@@ -26,7 +26,7 @@ namespace MBW.Utilities.IPAddresses
                 result = default;
                 return false;
             }
-            
+
             ulong high = 0;
             ulong low = 0;
             byte mask = 0;
@@ -168,7 +168,7 @@ namespace MBW.Utilities.IPAddresses
                         result = default;
                         return false;
                     }
-                    
+
                     ushort currentTuplet = 0;
 
                     ReadOnlySpan<char> segment = value.Slice(lastIdx + 1);

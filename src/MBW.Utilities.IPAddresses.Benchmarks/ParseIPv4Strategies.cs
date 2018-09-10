@@ -11,6 +11,12 @@ namespace MBW.Utilities.IPAddresses.Benchmarks
         {
             return IpAddressRangeV4.Parse("192.168.10.1");
         }
+        
+        [Benchmark]
+        public IpAddressRangeV4 CurrentIPv4UnstableParser()
+        {
+            return IpAddressRangeV4.ParseUnstable("192.168.10.1");
+        }
 
         [Benchmark]
         public IPAddress NativeIPv4()

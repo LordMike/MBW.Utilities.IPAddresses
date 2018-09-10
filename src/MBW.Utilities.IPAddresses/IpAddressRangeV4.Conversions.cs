@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using MBW.Utilities.IPAddresses.Tokenization;
 
 namespace MBW.Utilities.IPAddresses
 {
@@ -10,7 +11,7 @@ namespace MBW.Utilities.IPAddresses
             if (TryParse(value, out IpAddressRangeV4 result))
                 return result;
 
-            throw new ArgumentException("Argument was not a valid IPv4 range", nameof(value));
+            throw new ArgumentException($"Argument was not a valid IPv4 range, value: {value}", nameof(value));
         }
 
         public static bool TryParse(string value, out IpAddressRangeV4 result)
@@ -20,11 +21,109 @@ namespace MBW.Utilities.IPAddresses
 
         public static bool TryParse(ReadOnlySpan<char> value, out IpAddressRangeV4 result)
         {
-            if (value.Length == 0 || value.Length > 18)
+            int read;
+            (TokenType type, ushort value) tkn = default;
+
+            uint ip = 0;
+            byte cidr = 32;
+
+            // Parse the IP
+            int i;
+            for (i = 0; i < 4; i++)
             {
+                // Read a dot, or break on slashes
+                if (i > 0)
+                {
+                    tkn = Tokenizer.ReadToken(value, false, out read);
+                    value = value.Slice(read);
+
+                    if (tkn.type == TokenType.Slash)
+                        break;
+
+                    if (tkn.type != TokenType.Dot)
+                    {
+                        // We expected a dot, but we didn't get one
+                        result = default;
+                        return false;
+                    }
+                }
+
+                // Read a number
+                tkn = Tokenizer.ReadToken(value, false, out read);
+                value = value.Slice(read);
+
+                if (tkn.type != TokenType.Number || tkn.value > byte.MaxValue)
+                {
+                    // We expected a 0..255 number, but we didn't get one
+                    result = default;
+                    return false;
+                }
+
+                ip <<= 8;
+                ip += tkn.value;
+            }
+
+            // Assume the remainder of the IP is 0's
+            for (; i < 4; i++)
+                ip <<= 8;
+
+            // Parse the Cidr
+            if (tkn.type != TokenType.Slash)
+            {
+                tkn = Tokenizer.ReadToken(value, false, out read);
+                value = value.Slice(read);
+            }
+
+            if (tkn.type == TokenType.Slash)
+            {
+                // Read a number, as the cidr
+                tkn = Tokenizer.ReadToken(value, false, out read);
+                value = value.Slice(read);
+
+                if (tkn.type != TokenType.Number || tkn.value > 32)
+                {
+                    // We expected a 0..32 number, but we didn't get one
+                    result = default;
+                    return false;
+                }
+
+                cidr = (byte)tkn.value;
+
+                // Advance once more
+                tkn = Tokenizer.ReadToken(value, false, out read);
+                value = value.Slice(read);
+            }
+
+            // We now expect the end
+            if (tkn.type != TokenType.None)
+            {
+                // Something other than EOF was found
                 result = default;
                 return false;
             }
+
+            result = new IpAddressRangeV4(ip, cidr);
+            return true;
+        }
+
+        /// <summary>
+        /// Parses an IPv4 using faster code, but with fewer safety checks.
+        /// </summary>
+        /// <remarks>Use this only if you know the input /is/ an IPv4</remarks>
+        public static IpAddressRangeV4 ParseUnstable(string value)
+        {
+            return ParseUnstable(value.AsSpan());
+        }
+        
+        /// <summary>
+        /// Parses an IPv4 using faster code, but with fewer safety checks.
+        /// </summary>
+        /// <remarks>Use this only if you know the input /is/ an IPv4</remarks>
+        public static IpAddressRangeV4 ParseUnstable(ReadOnlySpan<char> value)
+        {
+            // TODO: Remove more checks, assume more of the input
+            if (value.Length == 0 || value.Length > 18)
+                return default;
 
             ushort currentOctet = 0;
             byte dots = 0;
@@ -39,16 +138,10 @@ namespace MBW.Utilities.IPAddresses
                 if (ch == '.')
                 {
                     if (expectNumber)
-                    {
-                        result = default;
-                        return false;
-                    }
+                        return default;
 
                     if (currentOctet > byte.MaxValue)
-                    {
-                        result = default;
-                        return false;
-                    }
+                        return default;
 
                     ip <<= 8;
                     ip += currentOctet;
@@ -56,10 +149,7 @@ namespace MBW.Utilities.IPAddresses
                     expectNumber = true;
 
                     if (++dots > 3)
-                    {
-                        result = default;
-                        return false;
-                    }
+                        return default;
 
                     continue;
                 }
@@ -76,16 +166,10 @@ namespace MBW.Utilities.IPAddresses
                 if (ch == '/')
                 {
                     if (expectNumber)
-                    {
-                        result = default;
-                        return false;
-                    }
+                        return default;
 
                     if (currentOctet > byte.MaxValue)
-                    {
-                        result = default;
-                        return false;
-                    }
+                        return default;
 
                     ip <<= 8;
                     ip += currentOctet;
@@ -97,32 +181,22 @@ namespace MBW.Utilities.IPAddresses
                     continue;
                 }
 
-                result = default;
-                return false;
+                return default;
             }
 
             if (expectNumber)
-            {
-                result = default;
-                return false;
-            }
+                return default;
 
             if (isCidr)
             {
                 // Add last octet as mask
                 if (currentOctet > 32)
-                {
-                    result = default;
-                    return false;
-                }
+                    return default;
             }
             else
             {
                 if (currentOctet > byte.MaxValue)
-                {
-                    result = default;
-                    return false;
-                }
+                    return default;
 
                 ip <<= 8;
                 ip += currentOctet;
@@ -134,8 +208,7 @@ namespace MBW.Utilities.IPAddresses
             if (toMove > 0)
                 ip <<= 8 * toMove;
 
-            result = new IpAddressRangeV4(ip, (byte)currentOctet);
-            return true;
+            return new IpAddressRangeV4(ip, (byte)currentOctet);
         }
 
         public static implicit operator IpAddressRangeV4(string value)
