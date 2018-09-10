@@ -33,12 +33,24 @@ namespace MBW.Utilities.IPAddresses.Tests
 
         [Theory]
         [InlineData("ffff:ffff:0000:0000:0000:0000:ffff:ffff", "ffff:ffff::ffff:ffff")]
-        [InlineData("0000:0000:0000:0000:0000:0000:192.168.10.1", "::192.168.10.1")]
-        [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:192.168.10.1", "ffff:ffff:ffff:ffff:ffff:ffff:192.168.10.1")]
         [InlineData("abcd:ef99:000a:000b:000c:000d:fffe:ffff", "abcd:ef99:a:b:c:d:fffe:ffff")]
         [InlineData("abcd:ef99:000a:0000:000c:000d:fffe:ffff", "abcd:ef99:a::c:d:fffe:ffff")]
         [InlineData("abcd:ef99:000a:0000:0000:000d:fffe:ffff", "abcd:ef99:a::d:fffe:ffff")]
         public void FormatParsingTests(string expected, string test)
+        {
+            IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
+            IPAddress expectedIp = IPAddress.Parse(expected);
+
+            parsed.Mask.Should().Be(128);
+            parsed.Address.Should().Be(expectedIp);
+            parsed.EndAddress.Should().Be(expectedIp);
+        }
+
+        [Theory(Skip = "Not supported yet")]
+        [InlineData("0000:0000:0000:0000:0000:0000:192.168.10.1", "::192.168.10.1")]
+        [InlineData("::192.168.10.1", "::192.168.10.1")]
+        [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:192.168.10.1", "ffff:ffff:ffff:ffff:ffff:ffff:192.168.10.1")]
+        public void IPv4InV6FormatParsingTests(string expected, string test)
         {
             IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
             IPAddress expectedIp = IPAddress.Parse(expected);
