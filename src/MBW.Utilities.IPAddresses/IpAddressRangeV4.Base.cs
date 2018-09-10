@@ -63,7 +63,9 @@ namespace MBW.Utilities.IPAddresses
         }
 
         public IpAddressRangeV4(IPAddress address, byte mask = 32)
+#pragma warning disable 618
             : this(BitUtilities.Reverse((uint)address.Address), mask)
+#pragma warning restore 618
         {
             if (address.AddressFamily != AddressFamily.InterNetwork)
                 throw new ArgumentException();
