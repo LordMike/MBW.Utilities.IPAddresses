@@ -27,7 +27,7 @@ namespace MBW.Utilities.IPAddresses.Tokenization
 
             if (ch == ':')
             {
-                if (str.Length >= 2 && str[1] == ':')
+                if (str.Length >= 2 && str[str.Length - 2] == ':')
                 {
                     read = 2;
                     return (TokenType.DoubleColon, 0);
