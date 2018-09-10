@@ -31,12 +31,12 @@ namespace MBW.Utilities.IPAddresses
             int i;
             for (i = 0; i < 4; i++)
             {
+                tkn = Tokenizer.ReadToken(value, false, out read);
+                value = value.Slice(read);
+
                 // Read a dot, or break on slashes
                 if (i > 0)
                 {
-                    tkn = Tokenizer.ReadToken(value, false, out read);
-                    value = value.Slice(read);
-
                     if (tkn.type == TokenType.Slash)
                         break;
 
@@ -46,12 +46,13 @@ namespace MBW.Utilities.IPAddresses
                         result = default;
                         return false;
                     }
+
+                    // Advance once more
+                    tkn = Tokenizer.ReadToken(value, false, out read);
+                    value = value.Slice(read);
                 }
 
                 // Read a number
-                tkn = Tokenizer.ReadToken(value, false, out read);
-                value = value.Slice(read);
-
                 if (tkn.type != TokenType.Number || tkn.value > byte.MaxValue)
                 {
                     // We expected a 0..255 number, but we didn't get one
