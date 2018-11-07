@@ -62,8 +62,11 @@ namespace MBW.Utilities.IPAddresses.Tests
         [InlineData("192.168.12.1/24", "192.168.12.0/32")]
         [InlineData("192.168/16", "192.168.188.10")]
         [InlineData("192.168.12.0/24", "192.168.12.0/25")]
-        public void Contains(IpAddressRangeV4 network, IpAddressRangeV4 othernet)
+        public void Contains(string networks, string othernets)
         {
+            IpAddressRangeV4 network = networks;
+            IpAddressRangeV4 othernet = othernets;
+
             network.Contains(othernet).Should().BeTrue();
             othernet.IsContainedIn(network).Should().BeTrue();
         }
@@ -77,8 +80,11 @@ namespace MBW.Utilities.IPAddresses.Tests
         [InlineData("192.168.10.1/24", "192.168.10.255/24")]
         [InlineData("192.168.12.1/24", "192.168.12.10/24")]
         [InlineData("192.168.12.0/24", "192.168.12.0/24")]
-        public void ContainsOrEqual(IpAddressRangeV4 network, IpAddressRangeV4 othernet)
+        public void ContainsOrEqual(string networks, string othernets)
         {
+            IpAddressRangeV4 network = networks;
+            IpAddressRangeV4 othernet = othernets;
+
             network.ContainsOrEqual(othernet).Should().BeTrue();
             othernet.IsContainedInOrEqual(network).Should().BeTrue();
         }
@@ -86,16 +92,21 @@ namespace MBW.Utilities.IPAddresses.Tests
         [Theory]
         [InlineData("192.168.10.1/24", "192.168.10.1/23")]
         [InlineData("192.168.0.0/16", "192.169.188.10")]
-        public void NotContains(IpAddressRangeV4 network, IpAddressRangeV4 othernet)
+        public void NotContains(string networks, string othernets)
         {
+            IpAddressRangeV4 network = networks;
+            IpAddressRangeV4 othernet = othernets;
+
             network.Contains(othernet).Should().BeFalse();
         }
 
         [Theory]
         [InlineData("192.168.10.1/24", "192.168.10.0/24")]
         [InlineData("192.168.10.1/32", "192.168.10.1")]
-        public void ToStringTests(IpAddressRangeV4 network, string expected)
+        public void ToStringTests(string networks, string expected)
         {
+            IpAddressRangeV4 network = networks;
+
             network.ToString().Should().Be(expected);
         }
 
@@ -105,16 +116,20 @@ namespace MBW.Utilities.IPAddresses.Tests
         [InlineData("192.168.10/17", "192.168.0/17")]
         [InlineData("192.168.128/17", "192.168.128/17")]
         [InlineData("192.168.10.1/16", "192.168/16")]
-        public void ToPrefixStringTests(IpAddressRangeV4 network, string expected)
+        public void ToPrefixStringTests(string networks, string expected)
         {
+            IpAddressRangeV4 network = networks;
+
             network.ToPrefixString().Should().Be(expected);
         }
 
         [Theory]
         [InlineData("192.168.10.1/24", "192.168.10.0/24")]
         [InlineData("192.168.10.1/32", "192.168.10.1/32")]
-        public void ToCidrStringTests(IpAddressRangeV4 network, string expected)
+        public void ToCidrStringTests(string networks, string expected)
         {
+            IpAddressRangeV4 network = networks;
+
             network.ToString(true).Should().Be(expected);
         }
 
@@ -122,8 +137,10 @@ namespace MBW.Utilities.IPAddresses.Tests
         [InlineData("192.168.10.1", new byte[] { 192, 168, 10, 1 })]
         [InlineData("1.2.3.4", new byte[] { 1, 2, 3, 4 })]
         [InlineData("4.3.2.1", new byte[] { 4, 3, 2, 1 })]
-        public void AddressToBytesTests(IpAddressRangeV4 network, byte[] expected)
+        public void AddressToBytesTests(string networks, byte[] expected)
         {
+            IpAddressRangeV4 network = networks;
+
             network.AddressToBytes().Should().Equal(expected);
 
             byte[] res = new byte[4];
@@ -136,8 +153,11 @@ namespace MBW.Utilities.IPAddresses.Tests
         [InlineData("192.168.10.1", "200.168.10.1")]
         [InlineData("0.0.0.1", "255.255.255.255")]
         [InlineData("1.2.3.4", "4.3.2.1")]
-        public void ComparisonTests(IpAddressRangeV4 smaller, IpAddressRangeV4 larger)
+        public void ComparisonTests(string smallers, string largers)
         {
+            IpAddressRangeV4 smaller = smallers;
+            IpAddressRangeV4 larger = largers;
+
             (smaller < larger).Should().BeTrue();
             (smaller <= larger).Should().BeTrue();
             (larger > smaller).Should().BeTrue();
@@ -150,8 +170,11 @@ namespace MBW.Utilities.IPAddresses.Tests
         [Theory]
         [InlineData("192.168.10.1/24", "192.168.10/24")]
         [InlineData("192.168.10.1/32", "192.168.10.1/32")]
-        public void EqualTests(IpAddressRangeV4 left, IpAddressRangeV4 right)
+        public void EqualTests(string lefts, string rights)
         {
+            IpAddressRangeV4 left = lefts;
+            IpAddressRangeV4 right = rights;
+
             (left < right).Should().BeFalse();
             (left <= right).Should().BeTrue();
             (left == right).Should().BeTrue();
@@ -167,8 +190,10 @@ namespace MBW.Utilities.IPAddresses.Tests
         [InlineData("192.168.0/23", new[] { "192.168.0/24", "192.168.1/24" })]
         [InlineData("192.168.0/16", new[] { "192.168.0/24", "192.168.255/24" })]
         [InlineData("192.168.96/20", new[] { "192.168.98/24", "192.168.99/24", "192.168.100/24", "192.168.101/24", "192.168.102/24", "192.168.105/24" })]
-        public void SupernetTests(IpAddressRangeV4 expected, string[] nets)
+        public void SupernetTests(string expecteds, string[] nets)
         {
+            IpAddressRangeV4 expected = expecteds;
+
             IpAddressRangeV4 supernet = IpAddressRangeV4.MakeSupernet(nets.Select(s => (IpAddressRangeV4)s));
 
             supernet.Should().Be(expected);
@@ -201,7 +226,7 @@ namespace MBW.Utilities.IPAddresses.Tests
         [InlineData("192.168.1.0/ ")]
         [InlineData("192.168.1./4")]
         [InlineData("192.168.1.")]
-        [InlineData("192.168..1")]  
+        [InlineData("192.168..1")]
         [InlineData("192.168..")]
         [InlineData("192...")]
         [InlineData("192..")]
