@@ -50,4 +50,4 @@ jobs:
       with:
         name: package
     - name: Publish
-      run: nuget push Build/*.nupkg -SkipDuplicate
+      run: nuget push Build/*.nupkg -Source https://api.nuget.org/v3/index.json -SkipDuplicate
