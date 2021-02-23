@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2016
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1BCF3D4B-6517-4266-BA61-87074DBE6A7A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{25A08EBA-DE96-4672-BAC0-C82A953FD28C}"
 	ProjectSection(SolutionItems) = preProject
-		.gitlab-ci.yml = .gitlab-ci.yml
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -23,6 +23,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBW.Utilities.IPAddresses.Benchmarks", "src\MBW.Utilities.IPAddresses.Benchmarks\MBW.Utilities.IPAddresses.Benchmarks.csproj", "{5EA28F96-4FE9-4933-AC61-A75BBEC9E1B7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBW.Utilities.IPAddresses.Tests", "src\MBW.Utilities.IPAddresses.Tests\MBW.Utilities.IPAddresses.Tests.csproj", "{5BBB1F1D-0073-47CE-9466-3037E2FFAF5E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{AF0AC957-7F38-4EE4-8602-EBB72BE4D839}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +55,7 @@ Global
 		{6D18096A-3E6E-4F03-9B41-70047A799ADE} = {1BCF3D4B-6517-4266-BA61-87074DBE6A7A}
 		{5EA28F96-4FE9-4933-AC61-A75BBEC9E1B7} = {1BCF3D4B-6517-4266-BA61-87074DBE6A7A}
 		{5BBB1F1D-0073-47CE-9466-3037E2FFAF5E} = {1BCF3D4B-6517-4266-BA61-87074DBE6A7A}
+		{AF0AC957-7F38-4EE4-8602-EBB72BE4D839} = {25A08EBA-DE96-4672-BAC0-C82A953FD28C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {15DB4164-7D93-4CF5-8308-5E43E11C2064}
