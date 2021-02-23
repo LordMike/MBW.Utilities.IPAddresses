@@ -29,11 +29,25 @@ namespace MBW.Utilities.IPAddresses
             {
                 if (_mask == 0)
                     return Max;
-
                 if (_mask == 128)
                     return Address;
 
-                ulong high = _addressHigh;
+                ulong high = EndAddressHigh;
+                ulong low = EndAddressLow;
+
+                return ConversionUtilities.ToIp(high, low);
+            }
+        }
+        
+        public ulong EndAddressLow
+        {
+            get
+            {
+                if (_mask == 0)
+                    return ulong.MaxValue;
+                if (_mask == 128)
+                    return _addressLow;
+
                 ulong low = _addressLow;
 
                 if (_mask > 64)
@@ -49,11 +63,31 @@ namespace MBW.Utilities.IPAddresses
                 else
                 {
                     // Fix the high bits, set the lows to high
-                    high = high | ~(ulong.MaxValue << (64 - _mask));
                     low = ulong.MaxValue;
                 }
 
-                return ConversionUtilities.ToIp(high, low);
+                return low;
+            }
+        }
+
+        public ulong EndAddressHigh
+        {
+            get
+            {
+                if (_mask == 0)
+                    return ulong.MaxValue;
+                if (_mask == 128)
+                    return _addressHigh;
+
+                ulong high = _addressHigh;
+
+                if (_mask < 64)
+                {
+                    // Fix the high bits, set the lows to high
+                    high = high | ~(ulong.MaxValue << (64 - _mask));
+                }
+
+                return high;
             }
         }
 

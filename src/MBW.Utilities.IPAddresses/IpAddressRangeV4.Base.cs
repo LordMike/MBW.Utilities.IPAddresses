@@ -30,9 +30,11 @@ namespace MBW.Utilities.IPAddresses
                 if (_mask == 32)
                     return Address;
 
-                return ConversionUtilities.ToIp(_address | ~(uint.MaxValue << (32 - _mask)));
+                return ConversionUtilities.ToIp(EndAddressUint);
             }
         }
+
+        public uint EndAddressUint => _address | ~(uint.MaxValue << (32 - _mask));
 
         public uint SubnetSize
         {

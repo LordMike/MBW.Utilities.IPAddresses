@@ -91,8 +91,7 @@ namespace MBW.Utilities.IPAddresses
                 cidr = (byte)tkn.value;
 
                 // Advance once more
-                tkn = Tokenizer.ReadToken(value, false, out read);
-                value = value.Slice(read);
+                tkn = Tokenizer.ReadToken(value, false, out _);
             }
 
             // We now expect the end

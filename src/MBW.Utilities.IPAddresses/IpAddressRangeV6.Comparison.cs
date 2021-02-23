@@ -31,7 +31,7 @@ namespace MBW.Utilities.IPAddresses
         {
             unchecked
             {
-                var hashCode = _addressHigh.GetHashCode();
+                int hashCode = _addressHigh.GetHashCode();
                 hashCode = (hashCode * 397) ^ _addressLow.GetHashCode();
                 hashCode = (hashCode * 397) ^ _mask.GetHashCode();
                 return hashCode;
