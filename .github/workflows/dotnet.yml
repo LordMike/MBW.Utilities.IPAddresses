@@ -41,13 +41,13 @@ jobs:
     if: github.ref == 'refs/heads/nuget'
 
     steps:
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+    - uses: nuget/setup-nuget@v1
       with:
-        dotnet-version: 5.0.x
+        nuget-api-key: ${{ secrets.NUGET_KEY }}
+        nuget-version: latest
     - name: Download package
       uses: actions/download-artifact@v2
       with:
         name: package
     - name: Publish
-      run: dotnet nuget push -k ${{ secrets.NUGET_KEY }} --skip-duplicate Build/*.nupkg
+      run: nuget push Build/*.nupkg -SkipDuplicate
