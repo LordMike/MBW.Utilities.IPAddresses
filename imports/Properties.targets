@@ -12,5 +12,9 @@
     <PackageLicenseUrl>https://github.com/LordMike/MBW.Utilities.IPAddresses/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/LordMike/MBW.Utilities.IPAddresses</PackageProjectUrl>
   </PropertyGroup>
-
+  
+  <PropertyGroup>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
 </Project>
