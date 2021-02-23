@@ -37,6 +37,8 @@ jobs:
 
     environment:
       name: nuget
+      
+    if: github.ref == 'refs/heads/nuget'
 
     steps:
     - name: Setup .NET
@@ -48,4 +50,4 @@ jobs:
       with:
         name: package
     - name: Publish
-      run: dotnet push -k ${{ secrets.NUGET_KEY }} --skip-duplicate Build/*.nupkg
+      run: dotnet nuget push -k ${{ secrets.NUGET_KEY }} --skip-duplicate Build/*.nupkg
