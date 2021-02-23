@@ -9,7 +9,7 @@
     <PackageId>$(AssemblyName)</PackageId>
     <Product>MBW.Utilities.IPAddresses</Product>
     <Company>MBWarez</Company>
-    <PackageLicenseUrl>https://github.com/LordMike/MBW.Utilities.IPAddresses/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LordMike/MBW.Utilities.IPAddresses</PackageProjectUrl>
   </PropertyGroup>
   
