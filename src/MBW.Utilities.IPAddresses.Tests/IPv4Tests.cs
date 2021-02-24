@@ -73,6 +73,7 @@ namespace MBW.Utilities.IPAddresses.Tests
 
         [Theory]
         [InlineData("192.168.10.1/24", "192.168.10.255/32")]
+        [InlineData("192.168.10.1/24", "192.168.10.1/23")]
         [InlineData("192.168.12.1/24", "192.168.12.10/32")]
         [InlineData("192.168.12.1/24", "192.168.12.0/32")]
         [InlineData("192.168/16", "192.168.188.10")]
@@ -90,8 +91,9 @@ namespace MBW.Utilities.IPAddresses.Tests
         }
 
         [Theory]
-        [InlineData("192.168.10.1/24", "192.168.10.1/23")]
         [InlineData("192.168.0.0/16", "192.169.188.10")]
+        [InlineData("192.168.1.128/25", "192.168.1.1")]
+        [InlineData("192.168.1.128/25", "192.168.1.127")]
         public void NotContains(string networks, string othernets)
         {
             IpAddressRangeV4 network = networks;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
@@ -18,6 +18,8 @@ namespace MBW.Utilities.IPAddresses
 
         public uint AddressUint => _address;
 
+        public uint NetworkMask => uint.MaxValue << (32 - _mask);
+
         public IPAddress Address => new IPAddress(BitUtilities.Reverse(_address));
 
         public IPAddress EndAddress
@@ -34,7 +36,7 @@ namespace MBW.Utilities.IPAddresses
             }
         }
 
-        public uint EndAddressUint => _address | ~(uint.MaxValue << (32 - _mask));
+        public uint EndAddressUint => _address | ~NetworkMask;
 
         public uint SubnetSize
         {

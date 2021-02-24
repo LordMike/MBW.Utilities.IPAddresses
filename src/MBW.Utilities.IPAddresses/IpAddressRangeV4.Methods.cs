@@ -9,19 +9,17 @@ namespace MBW.Utilities.IPAddresses
     {
         public bool Contains(IpAddressRangeV4 other)
         {
-            bool canBeInNetwork = _mask < other._mask;
-            uint otherMaskedToThisNetwork = other._address & (uint.MaxValue << _mask);
-            bool isInNetwork = (otherMaskedToThisNetwork & _address) == otherMaskedToThisNetwork;
-
-            return canBeInNetwork && isInNetwork;
+            // In addition to ContainsOrEqual, the mask should be smaller as to not be equal
+            return _mask < other._mask && ContainsOrEqual(other);
         }
 
         public bool ContainsOrEqual(IpAddressRangeV4 other)
         {
-            bool canBeInNetwork = _mask <= other._mask;
-            bool isInNetwork = (_address & other._address) == _address;
+            // Ensure the network part of both this and other are the same
+            uint thisNetwork = _address;
+            uint otherNetwork = other._address & NetworkMask;
 
-            return canBeInNetwork && isInNetwork;
+            return thisNetwork == otherNetwork;
         }
 
         public bool IsContainedIn(IpAddressRangeV4 other)
