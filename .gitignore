@@ -1,7 +1,5 @@
 .vs/
 bin/
 obj/
-Build/
 *.user
-BenchmarkDotNet.Artifacts/
-
+Build/
