@@ -1,12 +1,7 @@
-# IP address Parser and utilities for .NET
+# IP address Parser and utilities for .NET [![Generic Build](https://github.com/LordMike/MBW.Utilities.IPAddresses/actions/workflows/dotnet.yml/badge.svg)](https://github.com/LordMike/MBW.Utilities.IPAddresses/actions/workflows/dotnet.yml) [![NuGet](https://img.shields.io/nuget/v/MBW.Utilities.IPAddresses.svg)](https://www.nuget.org/packages/MBW.Utilities.IPAddresses) [![GHPackages](https://img.shields.io/badge/package-alpha-green)](https://github.com/LordMike/MBW.Utilities.IPAddresses/packages/692030)
+
 
 Fast IPv4 and IPv6 primitives and parsers for .NET.
-
-## Nuget
-
-Find this on [Nuget](https://www.nuget.org/packages/MBW.Utilities.IPAddresses)
-
-> MBW.Utilities.IPAddresses
 
 ## Features
 
