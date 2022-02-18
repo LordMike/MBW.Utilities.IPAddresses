@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Net;
+using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 
 namespace MBW.Utilities.IPAddresses.Benchmarks
 {
+    [MemoryDiagnoser]
     public class ParseIPv4Strategies
     {
+        private readonly Regex _ipRegex = new Regex("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}↵(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
         [Benchmark]
         public IpAddressRangeV4 CurrentIPv4Parser()
         {
             return IpAddressRangeV4.Parse("192.168.10.1");
         }
-        
+
         [Benchmark]
         public IpAddressRangeV4 CurrentIPv4UnstableParser()
         {
@@ -21,17 +25,22 @@ namespace MBW.Utilities.IPAddresses.Benchmarks
         [Benchmark]
         public IPAddress NativeIPv4()
         {
-            return IPAddress.Parse("192.168.10");
+            return IPAddress.Parse("192.168.10.1");
         }
 
         [Benchmark]
         public IpAddressRangeV4 Iterative()
         {
-            var ipAddressRangeV4 = Parse("192.168.10.1/24");
-            return ipAddressRangeV4;
+            return ParseIterative("192.168.10.1/24");
         }
 
-        private static IpAddressRangeV4 Parse(string str)
+        [Benchmark]
+        public bool RegexIPv4Parser()
+        {
+            return _ipRegex.IsMatch("192.168.10.1");
+        }
+
+        private static IpAddressRangeV4 ParseIterative(string str)
         {
             byte currentOctet = 0;
             byte dots = 0;
