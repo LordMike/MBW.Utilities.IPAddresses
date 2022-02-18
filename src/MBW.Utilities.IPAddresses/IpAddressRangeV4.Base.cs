@@ -64,26 +64,13 @@ namespace MBW.Utilities.IPAddresses
             }
         }
 
-#if NETSTANDARD1_6
-        public IpAddressRangeV4(IPAddress address, byte mask = 32)
-#pragma warning disable 618
-            : this(BitUtilities.Reverse(BitConverter.ToUInt32(address.GetAddressBytes(), 0)), mask)
-#pragma warning restore 618
+#pragma warning disable CS0618
+        public IpAddressRangeV4(IPAddress address, byte mask = 32) : this(BitUtilities.Reverse((uint)address.Address), mask)
+#pragma warning restore CS0618
         {
             if (address.AddressFamily != AddressFamily.InterNetwork)
                 throw new ArgumentException();
         }
-#else
-        public IpAddressRangeV4(IPAddress address, byte mask = 32)
-#pragma warning disable 618
-            : this(BitUtilities.Reverse((uint)address.Address), mask)
-#pragma warning restore 618
-        {
-            if (address.AddressFamily != AddressFamily.InterNetwork)
-                throw new ArgumentException();
-        }
-#endif
-
 
         public IpAddressRangeV4(uint address, byte mask = 32)
         {
