@@ -239,5 +239,18 @@ namespace MBW.Utilities.IPAddresses.Tests
         {
             IpAddressRangeV4.TryParse(test, out _).Should().BeFalse();
         }
+
+        [Theory]
+        [InlineData("192.168.0.0", "192.168.0.255", "192.168.0.0/24")]
+        [InlineData("10.0.0.0", "10.0.0.255", "10.0.0.0/24")]
+        [InlineData("10.0.0.0", "10.0.255.255", "10.0.0.0/16")]
+        [InlineData("10.0.0.0", "10.255.255.255", "10.0.0.0/8")]
+        [InlineData("10.0.0.0", "10.127.255.255", "10.0.0.0/9")] //Test that we support uneven bits
+        [InlineData("10.0.0.1", "10.255.255.255", "10.0.0.0/8")] //Test that we remove address bits to create a network id address
+        public void RangeCtor(string start, string end, string expected)
+        {
+            IpAddressRangeV4 ip = new IpAddressRangeV4(IPAddress.Parse(start), IPAddress.Parse(end));
+            ip.Should().Be(expected);
+        }
     }
 }
