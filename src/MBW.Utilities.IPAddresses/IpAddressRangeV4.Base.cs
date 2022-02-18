@@ -83,5 +83,41 @@ namespace MBW.Utilities.IPAddresses
             else
                 _address = address & (uint.MaxValue << (32 - _mask));
         }
+
+        /// <summary>
+        /// Creates an instance of <see cref="IpAddressRangeV4"/> from a network and broadcast address.
+        /// </summary>
+        /// <param name="networkAddress">The network address. Note that it must be a network start address such as 10.0.0.0</param>
+        /// <param name="broadcastAddress">The broadcast address. Note that it must be a broadcast address such as 10.255.255.255</param>
+#pragma warning disable CS0618
+        public IpAddressRangeV4(IPAddress networkAddress, IPAddress broadcastAddress) : this(BitUtilities.Reverse((uint)networkAddress.Address), BitUtilities.Reverse((uint)broadcastAddress.Address))
+#pragma warning restore CS0618
+        {
+        }
+
+        /// <summary>
+        /// Creates an instance of <see cref="IpAddressRangeV4"/> from a network and broadcast address.
+        /// </summary>
+        /// <param name="networkAddress">The network address. Note that it must be a network start address such as 10.0.0.0</param>
+        /// <param name="broadcastAddress">The broadcast address. Note that it must be a broadcast address such as 10.255.255.255</param>
+        public IpAddressRangeV4(uint networkAddress, uint broadcastAddress)
+        {
+            uint ip = networkAddress ^ broadcastAddress;
+
+            //count the number of 0 bits set
+            byte mask = 32;
+            while (ip != 0)
+            {
+                ip >>= 1;
+                mask--;
+            }
+
+            _mask = mask;
+
+            if (mask == 0)
+                _address = 0;
+            else
+                _address = networkAddress & (uint.MaxValue << (32 - _mask));
+        }
     }
 }
