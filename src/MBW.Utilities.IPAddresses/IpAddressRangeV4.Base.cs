@@ -1,14 +1,12 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Text.RegularExpressions;
 using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses
 {
     public partial struct IpAddressRangeV4
     {
-        private static readonly Regex ParseRegex = new Regex(@"^([0-9]{1,3})(?:\.([0-9]{1,3}))?(?:\.([0-9]{1,3}))?(?:\.([0-9]{1,3}))?(?:/([0-9]{1,2}))?$", RegexOptions.Compiled);
         private static readonly IPAddress Max = IPAddress.Parse("255.255.255.255");
 
         private readonly byte _mask;
