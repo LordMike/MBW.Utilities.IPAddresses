@@ -21,7 +21,7 @@ public class IPv6Tests
         parsed.EndAddress.Should().Be(expectedIp);
     }
 
-    [Theory(Skip = "Not supported yet")]
+    [Theory]
     [InlineData("0000:0000:0000:0000:0000:0000:192.168.10.1", "::192.168.10.1")]
     [InlineData("::192.168.10.1", "::192.168.10.1")]
     [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:192.168.10.1", "ffff:ffff:ffff:ffff:ffff:ffff:192.168.10.1")]

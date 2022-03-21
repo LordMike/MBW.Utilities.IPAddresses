@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Runtime.CompilerServices;
 using MBW.Utilities.IPAddresses.Helpers;
@@ -8,17 +9,12 @@ namespace MBW.Utilities.IPAddresses;
 
 public partial struct IpAddressRangeV6
 {
-    public static IpAddressRangeV6 Parse(string value)
+    public static IpAddressRangeV6 Parse(ReadOnlySpan<char> value)
     {
         if (TryParse(value, out IpAddressRangeV6 result))
             return result;
 
-        throw new ArgumentException($"Argument was not a valid IPv6 range, value: {value}", nameof(value));
-    }
-
-    public static bool TryParse(string value, out IpAddressRangeV6 result)
-    {
-        return TryParse(value.AsSpan(), out result);
+        throw new ArgumentException($"Argument was not a valid IPv6 range, value: {value.ToString()}", nameof(value));
     }
 
     public static bool TryParse(ReadOnlySpan<char> value, out IpAddressRangeV6 result)
@@ -141,15 +137,6 @@ public partial struct IpAddressRangeV6
 
         result = new IpAddressRangeV6(high, low, cidr);
         return true;
-    }
-
-    /// <summary>
-    /// Parses an IPv6 using faster code, but with fewer safety checks.
-    /// </summary>
-    /// <remarks>Use this only if you know the input /is/ an IPv6</remarks>
-    public static IpAddressRangeV6 ParseUnstable(string value)
-    {
-        return ParseUnstable(value.AsSpan());
     }
 
     /// <summary>
@@ -332,7 +319,13 @@ public partial struct IpAddressRangeV6
         return byte.MaxValue;
     }
 
-    public static implicit operator IpAddressRangeV6(string value)
+    [Obsolete]
+    public static explicit operator IpAddressRangeV6(string value)
+    {
+        return Parse(value);
+    }
+
+    public static explicit operator IpAddressRangeV6(ReadOnlySpan<char> value)
     {
         return Parse(value);
     }
@@ -340,5 +333,10 @@ public partial struct IpAddressRangeV6
     public static implicit operator IpAddressRangeV6(IPAddress value)
     {
         return new IpAddressRangeV6(value);
+    }
+
+    public static explicit operator IPAddress(IpAddressRangeV6 value)
+    {
+        return value.Address;
     }
 }

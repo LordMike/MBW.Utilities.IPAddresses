@@ -6,17 +6,12 @@ namespace MBW.Utilities.IPAddresses;
 
 public partial struct IpAddressRangeV4
 {
-    public static IpAddressRangeV4 Parse(string value)
+    public static IpAddressRangeV4 Parse(ReadOnlySpan<char> value)
     {
         if (TryParse(value, out IpAddressRangeV4 result))
             return result;
 
-        throw new ArgumentException($"Argument was not a valid IPv4 range, value: {value}", nameof(value));
-    }
-
-    public static bool TryParse(string value, out IpAddressRangeV4 result)
-    {
-        return TryParse(value.AsSpan(), out result);
+        throw new ArgumentException($"Argument was not a valid IPv4 range, value: {value.ToString()}", nameof(value));
     }
 
     public static bool TryParse(ReadOnlySpan<char> value, out IpAddressRangeV4 result)
@@ -106,15 +101,6 @@ public partial struct IpAddressRangeV4
         return true;
     }
 
-    /// <summary>
-    /// Parses an IPv4 using faster code, but with fewer safety checks.
-    /// </summary>
-    /// <remarks>Use this only if you know the input /is/ an IPv4</remarks>
-    public static IpAddressRangeV4 ParseUnstable(string value)
-    {
-        return ParseUnstable(value.AsSpan());
-    }
-        
     /// <summary>
     /// Parses an IPv4 using faster code, but with fewer safety checks.
     /// </summary>
@@ -211,7 +197,13 @@ public partial struct IpAddressRangeV4
         return new IpAddressRangeV4(ip, (byte)currentOctet);
     }
 
-    public static implicit operator IpAddressRangeV4(string value)
+    [Obsolete]
+    public static explicit operator IpAddressRangeV4(string value)
+    {
+        return Parse(value);
+    }
+
+    public static explicit operator IpAddressRangeV4(ReadOnlySpan<char> value)
     {
         return Parse(value);
     }
@@ -219,5 +211,10 @@ public partial struct IpAddressRangeV4
     public static implicit operator IpAddressRangeV4(IPAddress value)
     {
         return new IpAddressRangeV4(value);
+    }
+
+    public static explicit operator IPAddress(IpAddressRangeV4 value)
+    {
+        return value.Address;
     }
 }

@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Net;
 
 namespace MBW.Utilities.IPAddresses;
 
 public partial class IpAddressRange
 {
-    public static IpAddressRange Parse(string input)
+    public static IpAddressRange Parse(ReadOnlySpan<char> input)
     {
         if (!TryParse(input, out IpAddressRange parsed))
             throw new ArgumentException("Input was not a valid ip range", nameof(input));
@@ -13,7 +13,7 @@ public partial class IpAddressRange
         return parsed;
     }
 
-    public static bool TryParse(string input, out IpAddressRange range)
+    public static bool TryParse(ReadOnlySpan<char> input, out IpAddressRange range)
     {
         if (IpAddressRangeV4.TryParse(input, out IpAddressRangeV4 v4))
         {
@@ -31,7 +31,13 @@ public partial class IpAddressRange
         return false;
     }
 
-    public static implicit operator IpAddressRange(string value)
+    [Obsolete]
+    public static explicit operator IpAddressRange(string value)
+    {
+        return Parse(value);
+    }
+
+    public static explicit operator IpAddressRange(ReadOnlySpan<char> value)
     {
         return Parse(value);
     }
@@ -49,5 +55,10 @@ public partial class IpAddressRange
     public static implicit operator IpAddressRange(IpAddressRangeV6 value)
     {
         return new IpAddressRange(value);
+    }
+
+    public static explicit operator IPAddress(IpAddressRange value)
+    {
+        return value.Address;
     }
 }

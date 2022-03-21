@@ -12,9 +12,9 @@ public class UtilityTests
 
         Assert.True(network.Contains(ip));
         Assert.True(network.ContainsOrEqual(ip));
-        Assert.True(ip.IsContainedIn("192.168.1.0/24"));
-        Assert.True(ip.IsContainedIn("192.168.0.0/16"));
-        Assert.False(ip.IsContainedIn("192.168.1.128/25"));
+        Assert.True(ip.IsContainedIn((IpAddressRangeV4)"192.168.1.0/24"));
+        Assert.True(ip.IsContainedIn((IpAddressRangeV4)"192.168.0.0/16"));
+        Assert.False(ip.IsContainedIn((IpAddressRangeV4)"192.168.1.128/25"));
 
         Assert.Equal("192.168.1.1", ip.ToString());
         Assert.Equal("192.168.1.1/32", ip.ToString(true));
