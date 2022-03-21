@@ -9,4 +9,21 @@
     <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
+    <Compile Remove="*.NetStandard2.0.cs" />
+    <None Include="*.NetStandard2.0.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="IpAddressRange.*.cs">
+      <DependentUpon>IpAddressRange.cs</DependentUpon>
+    </Compile>
+    <Compile Update="IpAddressRangeV4.*.cs">
+      <DependentUpon>IpAddressRangeV4.cs</DependentUpon>
+    </Compile>
+    <Compile Update="IpAddressRangeV6.*.cs">
+      <DependentUpon>IpAddressRangeV6.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>
