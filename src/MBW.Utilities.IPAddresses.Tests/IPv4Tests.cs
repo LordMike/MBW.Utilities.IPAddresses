@@ -8,6 +8,45 @@ namespace MBW.Utilities.IPAddresses.Tests
     public class IPv4Tests
     {
         [Theory]
+        [InlineData("192.168.10.1", "192.168.10.1", 32)]
+        [InlineData("192.120.12.99/24", "192.120.12.0", 24)]
+        [InlineData("192.120.12/24", "192.120.12.0", 24)]
+        [InlineData("192.120/24", "192.120.0.0", 24)]
+        [InlineData("192/24", "192.0.0.0", 24)]
+        [InlineData("255.255.255.255/20", "255.255.240.0", 20)]
+        public void ValidFormatsTests(string input, string expectedIp, byte expectedMask)
+        {
+            IpAddressRangeV4 ip = IpAddressRangeV4.Parse(input);
+
+            ip.Mask.Should().Be(expectedMask);
+            ip.Address.Should().Be(IPAddress.Parse(expectedIp));
+        }
+
+        [Theory]
+        [InlineData("1922.168.1.0")]
+        [InlineData("257.168.1.0")]
+        [InlineData("192.168.1.2000")]
+        [InlineData("192.168.1.0/")]
+        [InlineData("192.168.1..0")]
+        [InlineData("192.168.1.0/111")]
+        [InlineData("192.168.1.0/33")]
+        [InlineData("192.168.1.0/256")]
+        [InlineData("192.168.1.0/ ")]
+        [InlineData("192.168.1./4")]
+        [InlineData("192.168.1.")]
+        [InlineData("192.168..1")]
+        [InlineData("192.168..")]
+        [InlineData("192...")]
+        [InlineData("192..")]
+        [InlineData("192.")]
+        [InlineData(".192")]
+        [InlineData(" 192")]
+        public void InvalidFormatsTests(string test)
+        {
+            IpAddressRangeV4.TryParse(test, out _).Should().BeFalse();
+        }
+
+        [Theory]
         [InlineData("255.255.255.255", "255.255.255.255", 32, 1)]
         [InlineData("255.255.255.254", "255.255.255.255", 31, 2)]
         [InlineData("255.255.255.252", "255.255.255.255", 30, 4)]
@@ -199,45 +238,6 @@ namespace MBW.Utilities.IPAddresses.Tests
             IpAddressRangeV4 supernet = IpAddressRangeV4.MakeSupernet(nets.Select(s => (IpAddressRangeV4)s));
 
             supernet.Should().Be(expected);
-        }
-
-        [Theory]
-        [InlineData("192.168.10.1", "192.168.10.1", 32)]
-        [InlineData("192.120.12.99/24", "192.120.12.0", 24)]
-        [InlineData("192.120.12/24", "192.120.12.0", 24)]
-        [InlineData("192.120/24", "192.120.0.0", 24)]
-        [InlineData("192/24", "192.0.0.0", 24)]
-        [InlineData("255.255.255.255/20", "255.255.240.0", 20)]
-        public void ParserTests(string input, string expectedIp, byte expectedMask)
-        {
-            IpAddressRangeV4 ip = IpAddressRangeV4.Parse(input);
-
-            ip.Mask.Should().Be(expectedMask);
-            ip.Address.Should().Be(IPAddress.Parse(expectedIp));
-        }
-
-        [Theory]
-        [InlineData("1922.168.1.0")]
-        [InlineData("257.168.1.0")]
-        [InlineData("192.168.1.2000")]
-        [InlineData("192.168.1.0/")]
-        [InlineData("192.168.1..0")]
-        [InlineData("192.168.1.0/111")]
-        [InlineData("192.168.1.0/33")]
-        [InlineData("192.168.1.0/256")]
-        [InlineData("192.168.1.0/ ")]
-        [InlineData("192.168.1./4")]
-        [InlineData("192.168.1.")]
-        [InlineData("192.168..1")]
-        [InlineData("192.168..")]
-        [InlineData("192...")]
-        [InlineData("192..")]
-        [InlineData("192.")]
-        [InlineData(".192")]
-        [InlineData(" 192")]
-        public void InvalidFormats(string test)
-        {
-            IpAddressRangeV4.TryParse(test, out _).Should().BeFalse();
         }
 
         [Theory]
