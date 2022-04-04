@@ -4,17 +4,46 @@ using MBW.Utilities.IPAddresses.Tokenization;
 
 namespace MBW.Utilities.IPAddresses.Benchmarks;
 
+[MemoryDiagnoser]
 public class TokenizerTest
 {
     [Benchmark]
-    public int DoTokenizationIPv6()
+    public void DoTokenizationIPv6()
+    {
+        ReadOnlySpan<char> span = "2001:0dff:44ff:0:1744:ffff/64".AsSpan();
+
+        Tokenizer tokenizer = new(span);
+
+        ParsedToken parsed;
+        do
+        {
+            parsed = tokenizer.ParseAndAdvanceStart();
+        } while (parsed.Type != TokenType.None);
+    }
+
+    [Benchmark]
+    public void DoTokenizationIPv6_Rev()
+    {
+        ReadOnlySpan<char> span = "2001:0dff:44ff:0:1744:ffff/64".AsSpan();
+
+        Tokenizer tokenizer = new(span);
+
+        ParsedToken parsed;
+        do
+        {
+            parsed = tokenizer.ParseAndAdvanceEnd();
+        } while (parsed.Type != TokenType.None);
+    }
+
+    [Benchmark]
+    public int PrevVersion_DoTokenizationIPv6()
     {
         ReadOnlySpan<char> span = "2001:0dff:44ff:0:1744:ffff/64".AsSpan();
 
         int cnt = 0;
         while (!span.IsEmpty)
         {
-            (TokenType type, ushort value) tkn = Tokenizer.ReadToken(span, true, out int read);
+            (TokenType type, ushort value) tkn = Tokenizer_Methods.ReadToken(span, true, out int read);
             span = span[read..];
 
             cnt += tkn.value;
@@ -24,14 +53,14 @@ public class TokenizerTest
     }
 
     [Benchmark]
-    public int DoTokenizationIPv6_Rev()
+    public int PrevVersion_DoTokenizationIPv6_Rev()
     {
         ReadOnlySpan<char> span = "2001:0dff:44ff:0:1744:ffff/64".AsSpan();
 
         int cnt = 0;
         while (!span.IsEmpty)
         {
-            (TokenType type, ushort value) tkn = Tokenizer.ReadTokenReverse(span, true, out int read);
+            (TokenType type, ushort value) tkn = Tokenizer_Methods.ReadTokenReverse(span, true, out int read);
             span = span[..^read];
 
             cnt += tkn.value;
@@ -41,14 +70,14 @@ public class TokenizerTest
     }
 
     [Benchmark]
-    public int DoTokenizationIPv4()
+    public int PrevVersion_DoTokenizationIPv4()
     {
         ReadOnlySpan<char> span = "192.168.255.45/32".AsSpan();
 
         int cnt = 0;
         while (!span.IsEmpty)
         {
-            (TokenType type, ushort value) tkn = Tokenizer.ReadToken(span, false, out int read);
+            (TokenType type, ushort value) tkn = Tokenizer_Methods.ReadToken(span, false, out int read);
             span = span[read..];
 
             cnt += tkn.value;
@@ -58,14 +87,14 @@ public class TokenizerTest
     }
 
     [Benchmark]
-    public int DoTokenizationIPv4_Rev()
+    public int PrevVersion_DoTokenizationIPv4_Rev()
     {
         ReadOnlySpan<char> span = "192.168.255.45/32".AsSpan();
 
         int cnt = 0;
         while (!span.IsEmpty)
         {
-            (TokenType type, ushort value) tkn = Tokenizer.ReadTokenReverse(span, false, out int read);
+            (TokenType type, ushort value) tkn = Tokenizer_Methods.ReadTokenReverse(span, false, out int read);
             span = span[..^read];
 
             cnt += tkn.value;

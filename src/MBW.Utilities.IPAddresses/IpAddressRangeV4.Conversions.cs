@@ -16,26 +16,32 @@ public partial struct IpAddressRangeV4
 
     public static bool TryParse(ReadOnlySpan<char> value, out IpAddressRangeV4 result)
     {
-        int read;
-        (TokenType type, ushort value) tkn = default;
+        // Longest IPv4 is 18 chars (4 octets of 3 chars, 3 dots and 3 chars cidr)
+        if (value.Length == 0 || value.Length > 18)
+        {
+            result = default;
+            return false;
+        }
 
         uint ip = 0;
         byte cidr = 32;
+
+        Tokenizer tokenizer = new(value);
+        ParsedToken token = default;
 
         // Parse the IP
         int i;
         for (i = 0; i < 4; i++)
         {
-            tkn = Tokenizer.ReadToken(value, false, out read);
-            value = value[read..];
+            token = tokenizer.ParseAndAdvanceStart(false);
 
             // Read a dot, or break on slashes
             if (i > 0)
             {
-                if (tkn.type == TokenType.Slash)
+                if (token.Type == TokenType.Slash)
                     break;
 
-                if (tkn.type != TokenType.Dot)
+                if (token.Type != TokenType.Dot)
                 {
                     // We expected a dot, but we didn't get one
                     result = default;
@@ -43,12 +49,11 @@ public partial struct IpAddressRangeV4
                 }
 
                 // Advance once more
-                tkn = Tokenizer.ReadToken(value, false, out read);
-                value = value[read..];
+                token = tokenizer.ParseAndAdvanceStart(false);
             }
 
             // Read a number
-            if (tkn.type != TokenType.Number || tkn.value > byte.MaxValue)
+            if (token.Type != TokenType.Number || token.Value > byte.MaxValue)
             {
                 // We expected a 0..255 number, but we didn't get one
                 result = default;
@@ -56,7 +61,7 @@ public partial struct IpAddressRangeV4
             }
 
             ip <<= 8;
-            ip += tkn.value;
+            ip += token.Value;
         }
 
         // Assume the remainder of the IP is 0's
@@ -64,33 +69,29 @@ public partial struct IpAddressRangeV4
             ip <<= 8;
 
         // Parse the Cidr
-        if (tkn.type != TokenType.Slash)
-        {
-            tkn = Tokenizer.ReadToken(value, false, out read);
-            value = value[read..];
-        }
+        if (token.Type != TokenType.Slash)
+            token = tokenizer.ParseAndAdvanceStart(false);
 
-        if (tkn.type == TokenType.Slash)
+        if (token.Type == TokenType.Slash)
         {
             // Read a number, as the cidr
-            tkn = Tokenizer.ReadToken(value, false, out read);
-            value = value[read..];
+            token = tokenizer.ParseAndAdvanceStart(false);
 
-            if (tkn.type != TokenType.Number || tkn.value > 32)
+            if (token.Type != TokenType.Number || token.Value > 32)
             {
                 // We expected a 0..32 number, but we didn't get one
                 result = default;
                 return false;
             }
 
-            cidr = (byte)tkn.value;
+            cidr = (byte)token.Value;
 
             // Advance once more
-            tkn = Tokenizer.ReadToken(value, false, out _);
+            token = tokenizer.ParseAndAdvanceStart(false);
         }
 
         // We now expect the end
-        if (tkn.type != TokenType.None)
+        if (token.Type != TokenType.None)
         {
             // Something other than EOF was found
             result = default;

@@ -1,115 +1,78 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace MBW.Utilities.IPAddresses.Tokenization;
 
-internal static class Tokenizer
+internal record struct ParsedToken(TokenType Type, ushort Value);
+
+internal ref struct Tokenizer
 {
-    public static (TokenType type, ushort value) ReadTokenReverse(ReadOnlySpan<char> str, bool isHexadecimal, out int read)
+    private ReadOnlySpan<char> _value;
+    private ReadOnlySpan<char> _temp;
+
+    public Tokenizer(ReadOnlySpan<char> input)
+    {
+        _value = input;
+        _temp = _value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ParsedToken Interpret(ReadOnlySpan<char> input, bool forward, bool isHexadecimal, out int read)
     {
         read = 0;
 
-        if (str.IsEmpty)
-            return (TokenType.None, 0);
+        if (input.IsEmpty)
+            return new(TokenType.None, 0);
 
-        char ch = str[str.Length - 1];
+        int idx, increment;
+
+        if (forward)
+        {
+            idx = 0;
+            increment = 1;
+        }
+        else
+        {
+            idx = input.Length - 1;
+            increment = -1;
+        }
+
+        char ch = input[idx];
         if (ch == '/')
         {
             read = 1;
-            return (TokenType.Slash, 0);
+            return new(TokenType.Slash, 0);
         }
 
         if (ch == '.')
         {
             read = 1;
-            return (TokenType.Dot, 0);
+            return new(TokenType.Dot, 0);
         }
 
         if (ch == ':')
         {
-            if (str.Length >= 2 && str[str.Length - 2] == ':')
+            if (input.Length >= 2 && input[idx + increment] == ':')
             {
                 read = 2;
-                return (TokenType.DoubleColon, 0);
+                return new(TokenType.DoubleColon, 0);
             }
 
             read = 1;
-            return (TokenType.Colon, 0);
+            return new(TokenType.Colon, 0);
         }
 
-        if (ch is >= '0' and <= '9' || ch is >= 'a' and <= 'f' || ch is >= 'A' and <= 'F')
+        if (ParseChar(ch, isHexadecimal) != byte.MaxValue)
         {
             // Read entire number
             ushort val = 0;
             ushort multiplier = 1;
-            int toRead = Math.Min(str.Length, 4) + 1;
-
-            for (int i = 1; i < toRead; i++)
-            {
-                ch = str[str.Length - i];
-                byte bt = ParseChar(ch, isHexadecimal);
-
-                if (bt == byte.MaxValue)
-                    break;
-
-                read++;
-
-                val += (ushort)(multiplier * bt);
-
-                if (isHexadecimal)
-                    multiplier *= 16;
-                else
-                    multiplier *= 10;
-            }
-
-            return (TokenType.Number, val);
-        }
-
-        return (TokenType.Unknown, 0);
-    }
-
-
-    public static (TokenType type, ushort value) ReadToken(ReadOnlySpan<char> str, bool isHexadecimal, out int read)
-    {
-        read = 0;
-
-        if (str.IsEmpty)
-            return (TokenType.None, 0);
-
-        char ch = str[0];
-        if (ch == '/')
-        {
-            read = 1;
-            return (TokenType.Slash, 0);
-        }
-
-        if (ch == '.')
-        {
-            read = 1;
-            return (TokenType.Dot, 0);
-        }
-
-        if (ch == ':')
-        {
-            if (str.Length >= 2 && str[1] == ':')
-            {
-                read = 2;
-                return (TokenType.DoubleColon, 0);
-            }
-
-            read = 1;
-            return (TokenType.Colon, 0);
-        }
-
-        if (ch is >= '0' and <= '9' || ch is >= 'a' and <= 'f' || ch is >= 'A' and <= 'F')
-        {
-            // Read entire number
-            ushort val = 0;
-            int toRead = Math.Min(str.Length, 4);
+            int toRead = Math.Min(input.Length, 4);
 
             for (int i = 0; i < toRead; i++)
             {
-                ch = str[i];
+                ch = input[idx + increment * i];
                 byte bt = ParseChar(ch, isHexadecimal);
 
                 if (bt == byte.MaxValue)
@@ -117,35 +80,115 @@ internal static class Tokenizer
 
                 read++;
 
-                if (isHexadecimal)
-                    val <<= 4;
-                else
-                    val *= 10;
+                if (forward)
+                {
+                    // Shift the current value, and add the new in
+                    if (isHexadecimal)
+                        val <<= 4;
+                    else
+                        val *= 10;
 
-                val += bt;
+                    val += bt;
+                }
+                else
+                {
+                    // Shift the new value, add it in
+                    val += (ushort)(multiplier * bt);
+
+                    if (isHexadecimal)
+                        multiplier *= 16;
+                    else
+                        multiplier *= 10;
+                }
             }
 
-            return (TokenType.Number, val);
+            if (read > 0)
+                return new(TokenType.Number, val);
         }
 
-        return (TokenType.Unknown, 0);
+        return new(TokenType.Unknown, 0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static byte ParseChar(char ch, bool isHexadecimal)
     {
-        if (ch is >= '0' and <= '9')
-            return (byte)(ch - '0');
+        return ch switch
+        {
+            >= '0' and <= '9' => (byte)(ch - '0'),
+            _ when !isHexadecimal => byte.MaxValue,
+            >= 'A' and <= 'F' => (byte)(10 + ch - 'A'),
+            >= 'a' and <= 'f' => (byte)(10 + ch - 'a'),
+            _ => byte.MaxValue
+        };
+    }
 
-        if (!isHexadecimal)
-            return byte.MaxValue;
+    public ParsedToken ParseAndAdvanceStart(bool isHexadecimal = true)
+    {
+        ParsedToken parsed = Interpret(_value, true, isHexadecimal, out int read);
 
-        if (ch is >= 'A' and <= 'F')
-            return (byte)(10 + ch - 'A');
+        _value = _value[read..];
+        _temp = _value;
 
-        if (ch is >= 'a' and <= 'f')
-            return (byte)(10 + ch - 'a');
+        return parsed;
+    }
 
-        return byte.MaxValue;
+    public ParsedToken PeekStart(bool isHexadecimal = true)
+    {
+        ParsedToken parsed = Interpret(_temp, true, isHexadecimal, out int read);
+
+        _temp = _temp[read..];
+
+        return parsed;
+    }
+
+    public ParsedToken ParseAndAdvanceEnd(bool isHexadecimal = true)
+    {
+        ParsedToken parsed = Interpret(_value, false, isHexadecimal, out int read);
+
+        _value = _value[..^read];
+        _temp = _value;
+
+        return parsed;
+    }
+
+    public ParsedToken PeekEnd(bool isHexadecimal = true)
+    {
+        ParsedToken parsed = Interpret(_temp, false, isHexadecimal, out int read);
+
+        _temp = _temp[..^read];
+
+        return parsed;
+    }
+
+    public IEnumerable<ParsedToken> ParseAllStart(bool isHexadecimal = true)
+    {
+        List<ParsedToken> tokens = new List<ParsedToken>(10);
+
+        ParsedToken parsed;
+        while ((parsed = ParseAndAdvanceStart(isHexadecimal)).Type != TokenType.None)
+            tokens.Add(parsed);
+
+        return tokens;
+    }
+
+    public IEnumerable<ParsedToken> ParseAllEnd(bool isHexadecimal = false)
+    {
+        List<ParsedToken> tokens = new List<ParsedToken>(10);
+
+        ParsedToken parsed;
+        while ((parsed = ParseAndAdvanceEnd(isHexadecimal)).Type != TokenType.None)
+            tokens.Add(parsed);
+
+        return tokens;
+    }
+
+    public void AdoptPeekOffsets()
+    {
+        _value = _temp;
+    }
+
+    public void ResetPeekOffsets()
+    {
+        _temp = _value;
     }
 }

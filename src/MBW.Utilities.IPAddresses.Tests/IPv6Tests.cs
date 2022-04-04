@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using FluentAssertions;
 using Xunit;
 
@@ -39,7 +40,7 @@ public class IPv6Tests
 
         // This representation is special, and should still be the IPv4 in IPv6 mapped
         expectedIp.ToString().Should().Be(expected);
-        parsed.ToString().Should().Be(test);
+        parsed.ToString().Should().Be(expected);
     }
 
     /// <summary>
@@ -47,21 +48,26 @@ public class IPv6Tests
     /// https://datatracker.ietf.org/doc/html/rfc4291#section-2.5.5.2
     /// </summary>
     [Theory]
-    [InlineData("::ffff:192.168.10.1", "0000:0000:0000:0000:0000:ffff:192.168.10.1")]
-    [InlineData("::ffff:192.168.10.1", "::ffff:192.168.10.1")]
-    [InlineData("::ffff:255.0.10.254", "::ffff:255.0.10.254")]
-    public void ValidIPv4InV6FormatTests(string expected, string test)
+    [InlineData("::ffff:192.168.10.1", "0000:0000:0000:0000:0000:ffff:192.168.10.1", 128)]
+    [InlineData("::ffff:192.168.10.1", "::ffff:192.168.10.1", 128)]
+    [InlineData("::ffff:255.0.10.254", "::ffff:255.0.10.254", 128)]
+    [InlineData("::ffff:0:0/96", "::ffff:192.168.10.1/96", 96)]
+    [InlineData("::ffff:255.240.0.0/112", "::ffff:255.240.220.200/112", 112)]
+    public void ValidIPv4InV6FormatTests(string expected, string test, byte cidr)
     {
-        IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
-        IPAddress expectedIp = IPAddress.Parse(test);
+        var expectedWithoutSlash = expected.Split('/').First();
 
-        parsed.Mask.Should().Be(128);
+        IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
+        IPAddress expectedIp = IPAddress.Parse(expectedWithoutSlash);
+
         parsed.Address.Should().Be(expectedIp);
-        parsed.EndAddress.Should().Be(expectedIp);
+        if (cidr == 128)
+            parsed.EndAddress.Should().Be(expectedIp);
+        parsed.Mask.Should().Be(cidr);
 
         // This representation is special, and should still be the IPv4 in IPv6 mapped
-        expectedIp.ToString().Should().Be(expected);
-        parsed.ToString().Should().Be(test);
+        expectedIp.ToString().Should().Be(expectedWithoutSlash);
+        parsed.ToString().Should().Be(expected);
     }
 
     [Theory]

@@ -19,11 +19,15 @@ public partial struct IpAddressRangeV6
 
     public static bool TryParse(ReadOnlySpan<char> value, out IpAddressRangeV6 result)
     {
+        // Longest regular IPv6 is 43 chars (0000:0000:0000:0000:0000:0000:0000:0000/128)
+        // Longest IPv4 mapped IPv6 is 49 chars (0000:0000:0000:0000:0000:ffff:255.255.255.255/128)
         if (value.Length == 0 || value.Length > 49)
         {
             result = default;
             return false;
         }
+
+        Tokenizer tokenizer = new(value);
 
         ulong high = 0;
         ulong low = 0;
@@ -33,21 +37,23 @@ public partial struct IpAddressRangeV6
         bool doReverse = false;
 
         // First pass, try reading a mask from the end of the input
-        (TokenType type, ushort value) tkn = Tokenizer.ReadTokenReverse(value, false, out int read);
-        if (tkn.type == TokenType.Number)
+        ParsedToken tkn = tokenizer.PeekEnd(false);
+        if (tkn.Type == TokenType.Number)
         {
-            (TokenType type, ushort value) slashTkn = Tokenizer.ReadTokenReverse(value[..^read], false, out int read2);
-            if (slashTkn.type == TokenType.Slash && tkn.value <= 128)
+            // Could be a number, therefor a CIDR range or IPv4
+            ParsedToken slashTkn = tokenizer.PeekEnd(false);
+            if (slashTkn.Type == TokenType.Slash && tkn.Value <= 128)
             {
-                cidr = (byte)tkn.value;
-                value = value[..(value.Length - read - read2)];
+                cidr = (byte)tkn.Value;
+                tokenizer.AdoptPeekOffsets();
             }
-            else if (slashTkn.type == TokenType.Dot)
+            else if (slashTkn.Type == TokenType.Dot)
             {
                 // This could be an IPv4 mapped in IPv6
                 // Carry on, see where it gets us
+                tokenizer.ResetPeekOffsets();
             }
-            else if (slashTkn.type != TokenType.Number && slashTkn.type != TokenType.DoubleColon && slashTkn.type != TokenType.None)
+            else if (slashTkn.Type != TokenType.Number && slashTkn.Type != TokenType.DoubleColon && slashTkn.Type != TokenType.None)
             {
                 // Any IPv6 should end on a number or double-colon (excluding the cidr mask), and the cidr mask should be 128 or lower
                 // Single-token IPv6's are allowed, so we check for None as well
@@ -59,36 +65,36 @@ public partial struct IpAddressRangeV6
         // Test if this could be an IPv4 mapped IPv6
         // This could be the case if the last two tokens are [Dot, Number]
         // Like '::ffff:192.168.1.0'
-        tkn = Tokenizer.ReadTokenReverse(value, false, out read);
-
-        if (tkn.type == TokenType.Number)
+        tkn = tokenizer.PeekEnd(false);
+        if (tkn.Type == TokenType.Number)
         {
             // If the next-to-last is a Dot, pass it on
-            (TokenType type, ushort value) slashTkn = Tokenizer.ReadTokenReverse(value[..^read], false, out int read2);
+            var tmpTkn = tokenizer.PeekEnd(false);
 
-            if (slashTkn.type == TokenType.Dot)
-                return TryReadIPv4MappedIPv6(value, out result);
+            tokenizer.ResetPeekOffsets();
+
+            if (tmpTkn.Type == TokenType.Dot)
+                return TryReadIPv4MappedIPv6(tokenizer, cidr, out result);
         }
+
+        tokenizer.ResetPeekOffsets();
 
         // Read up till a double-colon, eof or slash
         for (byte i = 0; i < 8; i++)
         {
-            tkn = Tokenizer.ReadToken(value, true, out read);
-            value = value[read..];
-
-            if (tkn.type == TokenType.None)
+            tkn = tokenizer.ParseAndAdvanceStart(true);
+            if (tkn.Type == TokenType.None)
                 break;
 
             if (i > 0)
             {
                 // The read token MUST be a colon or a double-colon
-                if (tkn.type == TokenType.Colon)
+                if (tkn.Type == TokenType.Colon)
                 {
                     // Advance once more
-                    tkn = Tokenizer.ReadToken(value, true, out read);
-                    value = value[read..];
+                    tkn = tokenizer.ParseAndAdvanceStart(true);
                 }
-                else if (tkn.type != TokenType.DoubleColon)
+                else if (tkn.Type != TokenType.DoubleColon)
                 {
                     result = default;
                     return false;
@@ -96,17 +102,17 @@ public partial struct IpAddressRangeV6
             }
 
             // Read a number or double-colon
-            if (tkn.type == TokenType.Number)
+            if (tkn.Type == TokenType.Number)
             {
-                SetTuplet(ref low, ref high, i, tkn.value);
+                SetTuplet(ref low, ref high, i, tkn.Value);
                 segmentsRead++;
             }
-            else if (tkn.type == TokenType.DoubleColon)
+            else if (tkn.Type == TokenType.DoubleColon)
             {
                 doReverse = true;
                 break;
             }
-            else if (tkn.type != TokenType.DoubleColon)
+            else if (tkn.Type != TokenType.DoubleColon)
             {
                 result = default;
                 return false;
@@ -120,30 +126,27 @@ public partial struct IpAddressRangeV6
 
             for (byte i = 0; i < toRead; i++)
             {
-                tkn = Tokenizer.ReadTokenReverse(value, true, out read);
-                value = value[..^read];
-
-                if (tkn.type == TokenType.None)
+                tkn = tokenizer.ParseAndAdvanceEnd(true);
+                if (tkn.Type == TokenType.None)
                     break;
 
                 if (i > 0)
                 {
                     // The read token MUST be a colon
-                    if (tkn.type != TokenType.Colon)
+                    if (tkn.Type != TokenType.Colon)
                     {
                         result = default;
                         return false;
                     }
 
                     // Advance once more
-                    tkn = Tokenizer.ReadTokenReverse(value, true, out read);
-                    value = value[..^read];
+                    tkn = tokenizer.ParseAndAdvanceEnd(true);
                 }
 
                 // Read a number
-                if (tkn.type == TokenType.Number)
+                if (tkn.Type == TokenType.Number)
                 {
-                    SetTuplet(ref low, ref high, (byte)(7 - i), tkn.value);
+                    SetTuplet(ref low, ref high, (byte)(7 - i), tkn.Value);
                     segmentsRead++;
                 }
                 else
@@ -158,44 +161,39 @@ public partial struct IpAddressRangeV6
         return true;
     }
 
-    private static bool TryReadIPv4MappedIPv6(ReadOnlySpan<char> value, out IpAddressRangeV6 result)
+    private static bool TryReadIPv4MappedIPv6(Tokenizer tokenizer, byte cidr, out IpAddressRangeV6 result)
     {
         ulong high = 0;
         ulong low = 0;
-        byte cidr = 128;
         byte segmentsRead = 0;
-        int read;
-        (TokenType type, ushort value) tkn;
+        ParsedToken token;
 
         // Read reverse, we're only interested in the IPv4 on the end
         byte toRead = 4;
 
         for (byte i = 0; i < toRead; i++)
         {
-            tkn = Tokenizer.ReadTokenReverse(value, false, out read);
-            value = value[..^read];
-
-            if (tkn.type == TokenType.None)
+            token = tokenizer.ParseAndAdvanceEnd(false);
+            if (token.Type == TokenType.None)
                 break;
 
             if (i > 0)
             {
                 // The read token MUST be a dot
-                if (tkn.type != TokenType.Dot)
+                if (token.Type != TokenType.Dot)
                 {
                     result = default;
                     return false;
                 }
 
                 // Advance once more
-                tkn = Tokenizer.ReadTokenReverse(value, false, out read);
-                value = value[..^read];
+                token = tokenizer.ParseAndAdvanceEnd(false);
             }
 
             // Read a number
-            if (tkn.type == TokenType.Number)
+            if (token.Type == TokenType.Number)
             {
-                SetByte(ref low, ref high, (byte)(15 - i), tkn.value);
+                SetByte(ref low, ref high, (byte)(15 - i), token.Value);
                 segmentsRead++;
             }
             else
@@ -206,28 +204,25 @@ public partial struct IpAddressRangeV6
         }
 
         // Assert that the next tokens are [Double-/Colon, ffff, Colon]
-        tkn = Tokenizer.ReadTokenReverse(value, true, out read);
-        value = value[..^read];
+        token = tokenizer.ParseAndAdvanceEnd(false);
 
-        if (tkn.type != TokenType.Colon)
+        if (token.Type != TokenType.Colon)
         {
             result = default;
             return false;
         }
 
-        tkn = Tokenizer.ReadTokenReverse(value, true, out read);
-        value = value[..^read];
+        token = tokenizer.ParseAndAdvanceEnd(true);
 
-        if (tkn.type != TokenType.Number || tkn.value != 0xffff)
+        if (token.Type != TokenType.Number || token.Value != 0xffff)
         {
             result = default;
             return false;
         }
 
-        tkn = Tokenizer.ReadTokenReverse(value, true, out read);
-        value = value[..^read];
+        token = tokenizer.ParseAndAdvanceEnd(false);
 
-        if (tkn.type is not TokenType.Colon && tkn.type is not TokenType.DoubleColon)
+        if (token.Type is not TokenType.Colon && token.Type is not TokenType.DoubleColon)
         {
             result = default;
             return false;
