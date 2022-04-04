@@ -1,9 +1,8 @@
-﻿namespace MBW.Utilities.IPAddresses
+﻿namespace MBW.Utilities.IPAddresses;
+
+public enum IpAddressRangeType
 {
-    public enum IpAddressRangeType
-    {
-        Unknown,
-        IPv4,
-        IPv6
-    }
+    Unknown,
+    IPv4,
+    IPv6
 }
