@@ -21,11 +21,14 @@ public class IPv6Tests
         parsed.EndAddress.Should().Be(expectedIp);
     }
 
-    [Theory]
-    [InlineData("0000:0000:0000:0000:0000:0000:192.168.10.1", "::192.168.10.1")]
+    /// <summary>
+    /// Special format used for IPv6 transition, now deprecated
+    /// https://datatracker.ietf.org/doc/html/rfc4291#section-2.5.5.1
+    /// </summary>
+    [Theory(Skip = "Deprecated RFC")]
+    [InlineData("::192.168.10.1", "0000:0000:0000:0000:0000:0000:192.168.10.1")]
     [InlineData("::192.168.10.1", "::192.168.10.1")]
-    [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:192.168.10.1", "ffff:ffff:ffff:ffff:ffff:ffff:192.168.10.1")]
-    public void ValidIPv4InV6FormatTests(string expected, string test)
+    public void ValidIPv4CompatibleIPv6FormatTests(string expected, string test)
     {
         IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
         IPAddress expectedIp = IPAddress.Parse(expected);
@@ -33,6 +36,32 @@ public class IPv6Tests
         parsed.Mask.Should().Be(128);
         parsed.Address.Should().Be(expectedIp);
         parsed.EndAddress.Should().Be(expectedIp);
+
+        // This representation is special, and should still be the IPv4 in IPv6 mapped
+        expectedIp.ToString().Should().Be(expected);
+        parsed.ToString().Should().Be(test);
+    }
+
+    /// <summary>
+    /// Special IPv6 transition format, "IPv4-Mapped IPv6 Address"
+    /// https://datatracker.ietf.org/doc/html/rfc4291#section-2.5.5.2
+    /// </summary>
+    [Theory]
+    [InlineData("::ffff:192.168.10.1", "0000:0000:0000:0000:0000:ffff:192.168.10.1")]
+    [InlineData("::ffff:192.168.10.1", "::ffff:192.168.10.1")]
+    [InlineData("::ffff:255.0.10.254", "::ffff:255.0.10.254")]
+    public void ValidIPv4InV6FormatTests(string expected, string test)
+    {
+        IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
+        IPAddress expectedIp = IPAddress.Parse(test);
+
+        parsed.Mask.Should().Be(128);
+        parsed.Address.Should().Be(expectedIp);
+        parsed.EndAddress.Should().Be(expectedIp);
+
+        // This representation is special, and should still be the IPv4 in IPv6 mapped
+        expectedIp.ToString().Should().Be(expected);
+        parsed.ToString().Should().Be(test);
     }
 
     [Theory]
