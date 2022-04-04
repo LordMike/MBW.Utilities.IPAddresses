@@ -8,10 +8,15 @@ namespace MBW.Utilities.IPAddresses.Tests;
 public class IPv6Tests
 {
     [Theory]
+    [InlineData("0000:0000:0000:0000:0000:0000:0000:0000", "::")]
+    [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
     [InlineData("ffff:ffff:0000:0000:0000:0000:ffff:ffff", "ffff:ffff::ffff:ffff")]
     [InlineData("abcd:ef99:000a:000b:000c:000d:fffe:ffff", "abcd:ef99:a:b:c:d:fffe:ffff")]
     [InlineData("abcd:ef99:000a:0000:000c:000d:fffe:ffff", "abcd:ef99:a::c:d:fffe:ffff")]
     [InlineData("abcd:ef99:000a:0000:0000:000d:fffe:ffff", "abcd:ef99:a::d:fffe:ffff")]
+    [InlineData("2001:0db8:0000:0000:0000:8a2e:0370:7334", "2001:0db8::8a2e:0370:7334")] //Ordinary IPv6
+    //[InlineData("2001:0db8:0000:0000:0000:8a2e:0370:7334", "[2001:0db8:0000:0000:0000:8a2e:0370:7334]")] //We should support square brackets around the IPv6
+    //[InlineData("2001:0db8:0000:0000:0000:8a2e:0370:7334", "2001:0db8::8a2e:0370:7334%3")] //We should support scope
     public void ValidFormatsTests(string expected, string test)
     {
         IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
@@ -84,6 +89,7 @@ public class IPv6Tests
     [InlineData("2001:::/ff")]
     [InlineData("2001:::/")]
     [InlineData("2001:::/\t")]
+    [InlineData("2001:0db8::8a2e:192.168.0.1")] // Badly formatted IPv4 in IPv6
     public void InvalidFormatsTests(string test)
     {
         IpAddressRangeV6.TryParse(test, out _).Should().BeFalse();

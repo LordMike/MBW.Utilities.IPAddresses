@@ -53,7 +53,7 @@ public partial struct IpAddressRangeV6
                 // Carry on, see where it gets us
                 tokenizer.ResetPeekOffsets();
             }
-            else if (slashTkn.Type != TokenType.Number && slashTkn.Type != TokenType.DoubleColon && slashTkn.Type != TokenType.None)
+            else if (slashTkn.Type != TokenType.Number && slashTkn.Type != TokenType.Colon && slashTkn.Type != TokenType.DoubleColon && slashTkn.Type != TokenType.None)
             {
                 // Any IPv6 should end on a number or double-colon (excluding the cidr mask), and the cidr mask should be 128 or lower
                 // Single-token IPv6's are allowed, so we check for None as well
