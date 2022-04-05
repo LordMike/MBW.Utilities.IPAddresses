@@ -112,6 +112,21 @@ public partial class IpAddressNetwork
         };
     }
 
+    public void AddressToBytes(Span<byte> bytes)
+    {
+        switch (Type)
+        {
+            case IpAddressRangeType.IPv4:
+                _v4!.Value.AddressToBytes(bytes);
+                break;
+            case IpAddressRangeType.IPv6:
+                _v6!.Value.AddressToBytes(bytes);
+                break;
+            default:
+                throw new InvalidOperationException();
+        }
+    }
+
     public byte[] AddressToBytes()
     {
         return Type switch

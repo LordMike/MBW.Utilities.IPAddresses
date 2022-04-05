@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentAssertions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -75,8 +76,8 @@ public class ApiSurfaceStandardizationTests
                 .Concat(MakeAll("static T op_Explicit(System.ReadOnlySpan`1[System.Char])"))
                 .Concat(MakeAll("static T op_Implicit(System.Net.IPAddress)"))
                 .Concat(MakeAll("static System.Net.IPAddress op_Explicit(T)"))
-                .Concat(MakeAll("instance void AddressToBytes(System.Span`1[Byte])"))
-                .Concat(MakeAll("instance void AddressToBytes(Byte[], Int32)"))
+                .Concat(MakeAll("instance Void AddressToBytes(System.Span`1[System.Byte])"))
+                .Concat(MakeAll("instance Void AddressToBytes(Byte[], Int32)"))
                 .Concat(MakeAll("instance Byte[] AddressToBytes()"))
                 // Operators methods
                 .Concat(MakeAll("static Boolean op_Equality(T, T)"))
@@ -98,6 +99,17 @@ public class ApiSurfaceStandardizationTests
     [MemberData(nameof(GetMethodSignatures))]
     public void MustHaveMethod2(Type type, string signature)
     {
-        Assert.Contains(signature, _types[type]);
+        // Note: Do not use Should().Contain(), it produces very long and useless assertions
+        bool res = _types[type].Contains(signature);
+
+        if (!res)
+        {
+            Fastenshtein.Levenshtein lev = new Fastenshtein.Levenshtein(signature);
+            var closest = _types[type].MinBy(s => lev.DistanceFrom(s));
+            
+            res.Should().BeTrue($"Type '{type.Name}'\n" +
+                $"  Should contain '{signature}'\n" +
+                $"  Closest:       '{closest}'");
+        }
     }
 }
