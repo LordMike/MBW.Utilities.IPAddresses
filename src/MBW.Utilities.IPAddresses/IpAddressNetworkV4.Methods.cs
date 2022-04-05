@@ -99,13 +99,21 @@ public partial struct IpAddressNetworkV4
         return ToString(false);
     }
 
+    public void AddressToBytes(Span<byte> bytes)
+    {
+        if (bytes.Length < 4)
+            throw new ArgumentOutOfRangeException(nameof(bytes));
+
+        bytes[0] = (byte)((_address >> 24) & 0xFF);
+        bytes[1] = (byte)((_address >> 16) & 0xFF);
+        bytes[2] = (byte)((_address >> 8) & 0xFF);
+        bytes[3] = (byte)(_address & 0xFF);
+    }
+
     public byte[] AddressToBytes()
     {
         byte[] res = new byte[4];
-        res[0] = (byte)((_address >> 24) & 0xFF);
-        res[1] = (byte)((_address >> 16) & 0xFF);
-        res[2] = (byte)((_address >> 8) & 0xFF);
-        res[3] = (byte)(_address & 0xFF);
+        AddressToBytes(res);
 
         return res;
     }
@@ -115,12 +123,6 @@ public partial struct IpAddressNetworkV4
         if (bytes == null)
             throw new ArgumentNullException(nameof(bytes));
 
-        if (bytes.Length - offset < 4)
-            throw new ArgumentOutOfRangeException(nameof(offset));
-
-        bytes[offset] = (byte)((_address >> 24) & 0xFF);
-        bytes[offset + 1] = (byte)((_address >> 16) & 0xFF);
-        bytes[offset + 2] = (byte)((_address >> 8) & 0xFF);
-        bytes[offset + 3] = (byte)(_address & 0xFF);
+        AddressToBytes(bytes.AsSpan().Slice(offset, 4));
     }
 }

@@ -60,7 +60,7 @@ public class IPv6Tests
     [InlineData("::ffff:255.240.0.0/112", "::ffff:255.240.220.200/112", 112)]
     public void ValidIPv4InV6FormatTests(string expected, string test, byte cidr)
     {
-        var expectedWithoutSlash = expected.Split('/').First();
+        string expectedWithoutSlash = expected.Split('/').First();
 
         IpAddressNetworkV6 parsed = IpAddressNetworkV6.Parse(test);
         IPAddress expectedIp = IPAddress.Parse(expectedWithoutSlash);
@@ -109,14 +109,19 @@ public class IPv6Tests
     [InlineData("0000:0000:0000:0000:0000:0000:0000:0000", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0)]
     public void BasicTest(string address, string end, byte mask)
     {
-        IpAddressNetworkV6 ip = new IpAddressNetworkV6(IPAddress.Parse(address), mask);
+        IPAddress addressIp = IPAddress.Parse(address);
+        IpAddressNetworkV6 ip = new IpAddressNetworkV6(addressIp, mask);
 
         ip.Mask.Should().Be(mask);
-        ip.Address.Should().Be(IPAddress.Parse(address));
+        ip.Address.Should().Be(addressIp);
         ip.EndAddress.Should().Be(IPAddress.Parse(end));
 
         IpAddressNetworkV6 asCustomParsed = IpAddressNetworkV6.Parse(address + "/" + mask);
 
         asCustomParsed.Should().Be(ip);
+
+        byte[] toBytesExpected = addressIp.GetAddressBytes();
+        byte[] toBytesActual = asCustomParsed.AddressToBytes();
+        toBytesActual.Should().Equal(toBytesExpected);
     }
 }

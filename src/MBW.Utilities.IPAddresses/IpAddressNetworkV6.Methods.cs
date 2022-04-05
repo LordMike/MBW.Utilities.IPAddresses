@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using MBW.Utilities.IPAddresses.Helpers;
 
@@ -164,25 +165,33 @@ public partial struct IpAddressNetworkV6
         return ToString();
     }
 
+    public void AddressToBytes(Span<byte> bytes)
+    {
+        if (bytes.Length < 16)
+            throw new ArgumentOutOfRangeException(nameof(bytes));
+
+        bytes[0] = (byte)((_addressHigh >> 56) & 0xFF);
+        bytes[1] = (byte)((_addressHigh >> 48) & 0xFF);
+        bytes[2] = (byte)((_addressHigh >> 40) & 0xFF);
+        bytes[3] = (byte)((_addressHigh >> 32) & 0xFF);
+        bytes[4] = (byte)((_addressHigh >> 24) & 0xFF);
+        bytes[5] = (byte)((_addressHigh >> 16) & 0xFF);
+        bytes[6] = (byte)((_addressHigh >> 8) & 0xFF);
+        bytes[7] = (byte)(_addressHigh & 0xFF);
+        bytes[8] = (byte)((_addressLow >> 56) & 0xFF);
+        bytes[9] = (byte)((_addressLow >> 48) & 0xFF);
+        bytes[10] = (byte)((_addressLow >> 40) & 0xFF);
+        bytes[11] = (byte)((_addressLow >> 32) & 0xFF);
+        bytes[12] = (byte)((_addressLow >> 24) & 0xFF);
+        bytes[13] = (byte)((_addressLow >> 16) & 0xFF);
+        bytes[14] = (byte)((_addressLow >> 8) & 0xFF);
+        bytes[15] = (byte)(_addressLow & 0xFF);
+    }
+
     public byte[] AddressToBytes()
     {
         byte[] res = new byte[16];
-        res[0] = (byte)((_addressHigh >> 56) & 0xFF);
-        res[1] = (byte)((_addressHigh >> 48) & 0xFF);
-        res[2] = (byte)((_addressHigh >> 40) & 0xFF);
-        res[3] = (byte)((_addressHigh >> 32) & 0xFF);
-        res[4] = (byte)((_addressHigh >> 24) & 0xFF);
-        res[5] = (byte)((_addressHigh >> 16) & 0xFF);
-        res[6] = (byte)((_addressHigh >> 8) & 0xFF);
-        res[7] = (byte)(_addressHigh & 0xFF);
-        res[8] = (byte)((_addressLow >> 56) & 0xFF);
-        res[9] = (byte)((_addressLow >> 48) & 0xFF);
-        res[10] = (byte)((_addressLow >> 40) & 0xFF);
-        res[11] = (byte)((_addressLow >> 32) & 0xFF);
-        res[12] = (byte)((_addressLow >> 24) & 0xFF);
-        res[13] = (byte)((_addressLow >> 16) & 0xFF);
-        res[14] = (byte)((_addressLow >> 8) & 0xFF);
-        res[15] = (byte)(_addressLow & 0xFF);
+        AddressToBytes(res);
 
         return res;
     }
@@ -192,24 +201,6 @@ public partial struct IpAddressNetworkV6
         if (bytes == null)
             throw new ArgumentNullException(nameof(bytes));
 
-        if (bytes.Length - offset < 16)
-            throw new ArgumentOutOfRangeException(nameof(offset));
-
-        bytes[offset + 0] = (byte)((_addressHigh >> 56) & 0xFF);
-        bytes[offset + 1] = (byte)((_addressHigh >> 48) & 0xFF);
-        bytes[offset + 2] = (byte)((_addressHigh >> 40) & 0xFF);
-        bytes[offset + 3] = (byte)((_addressHigh >> 32) & 0xFF);
-        bytes[offset + 4] = (byte)((_addressHigh >> 24) & 0xFF);
-        bytes[offset + 5] = (byte)((_addressHigh >> 16) & 0xFF);
-        bytes[offset + 6] = (byte)((_addressHigh >> 8) & 0xFF);
-        bytes[offset + 7] = (byte)(_addressHigh & 0xFF);
-        bytes[offset + 8] = (byte)((_addressLow >> 56) & 0xFF);
-        bytes[offset + 9] = (byte)((_addressLow >> 48) & 0xFF);
-        bytes[offset + 10] = (byte)((_addressLow >> 40) & 0xFF);
-        bytes[offset + 11] = (byte)((_addressLow >> 32) & 0xFF);
-        bytes[offset + 12] = (byte)((_addressLow >> 24) & 0xFF);
-        bytes[offset + 13] = (byte)((_addressLow >> 16) & 0xFF);
-        bytes[offset + 14] = (byte)((_addressLow >> 8) & 0xFF);
-        bytes[offset + 15] = (byte)(_addressLow & 0xFF);
+        AddressToBytes(bytes.AsSpan().Slice(offset, 16));
     }
 }

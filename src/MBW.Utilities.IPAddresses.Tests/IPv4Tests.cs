@@ -68,9 +68,11 @@ public class IPv4Tests
     [InlineData("0.0.0.0", "255.255.255.255", 0, uint.MaxValue)]
     public void BasicTest(string address, string end, byte mask, uint expectedSubnetSize)
     {
-        IpAddressNetworkV4 ip = new IpAddressNetworkV4(IPAddress.Parse(address), mask);
+        IPAddress addressIp = IPAddress.Parse(address);
 
-        ip.Address.Should().Be(IPAddress.Parse(address));
+        IpAddressNetworkV4 ip = new IpAddressNetworkV4(addressIp, mask);
+
+        ip.Address.Should().Be(addressIp);
         ip.EndAddress.Should().Be(IPAddress.Parse(end));
         ip.Mask.Should().Be(mask);
         ip.SubnetSize.Should().Be(expectedSubnetSize);
@@ -79,6 +81,10 @@ public class IPv4Tests
         IpAddressNetworkV4 asCustomParsed = IpAddressNetworkV4.Parse(address + "/" + mask);
 
         asCustomParsed.Should().Be(ip);
+
+        byte[] toBytesExpected = addressIp.GetAddressBytes();
+        byte[] toBytesActual = asCustomParsed.AddressToBytes();
+        toBytesActual.Should().Equal(toBytesExpected);
     }
 
     [Theory]

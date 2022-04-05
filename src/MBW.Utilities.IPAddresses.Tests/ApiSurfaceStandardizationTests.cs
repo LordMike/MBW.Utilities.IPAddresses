@@ -36,7 +36,7 @@ public class ApiSurfaceStandardizationTests
     {
         Regex tReplacer = new Regex(@"\bT\b");
 
-        var specificTypes = new[] { typeof(IpAddressNetworkV4), typeof(IpAddressNetworkV6) };
+        Type[] specificTypes = new[] { typeof(IpAddressNetworkV4), typeof(IpAddressNetworkV6) };
 
         object[] Make<T>(string signature) => new object[] { typeof(T), signature };
 
@@ -75,6 +75,8 @@ public class ApiSurfaceStandardizationTests
                 .Concat(MakeAll("static T op_Explicit(System.ReadOnlySpan`1[System.Char])"))
                 .Concat(MakeAll("static T op_Implicit(System.Net.IPAddress)"))
                 .Concat(MakeAll("static System.Net.IPAddress op_Explicit(T)"))
+                .Concat(MakeAll("instance void AddressToBytes(System.Span`1[Byte])"))
+                .Concat(MakeAll("instance void AddressToBytes(Byte[], Int32)"))
                 .Concat(MakeAll("instance Byte[] AddressToBytes()"))
                 // Operators methods
                 .Concat(MakeAll("static Boolean op_Equality(T, T)"))
