@@ -16,8 +16,9 @@ public partial struct IpAddressNetworkV4
 
     public static bool TryParse(ReadOnlySpan<char> value, out IpAddressNetworkV4 result)
     {
-        // Longest IPv4 is 18 chars (4 octets of 3 chars, 3 dots and 3 chars cidr)
-        if (value.Length == 0 || value.Length > 18)
+        // Shortest IPv4 is 1 char (0)
+        // Longest IPv4 is 18 chars (255.255.255.255/32)
+        if (value.Length < 1 || value.Length > 18)
         {
             result = default;
             return false;

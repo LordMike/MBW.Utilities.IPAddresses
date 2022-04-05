@@ -5,6 +5,10 @@ using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses;
 
+/// <summary>
+/// Represents an IPv4 network, consisting of an address and a subnet mask.
+/// This is typically represented as a CIDR notation IP address like '244.112.84.2/31'
+/// </summary>
 public partial struct IpAddressNetworkV4
 {
     private static readonly IPAddress Max = IPAddress.Parse("255.255.255.255");

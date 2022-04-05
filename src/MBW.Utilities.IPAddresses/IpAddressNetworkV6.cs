@@ -6,6 +6,10 @@ using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses;
 
+/// <summary>
+/// Represents an IPv6 network, consisting of an address and a subnet mask.
+/// This is typically represented as a CIDR notation IP address like '2001:aaff::8873:fee0/128'
+/// </summary>
 public partial struct IpAddressNetworkV6
 {
     private static readonly Regex IpRegex = new Regex(@"^([a-fA-F0-9:\.]*)(?:/([0-9]{1,3}))?$", RegexOptions.Compiled);

@@ -18,9 +18,10 @@ public partial struct IpAddressNetworkV6
 
     public static bool TryParse(ReadOnlySpan<char> value, out IpAddressNetworkV6 result)
     {
+        // Shortest IPv6 is 2 chars (::)
         // Longest regular IPv6 is 43 chars (0000:0000:0000:0000:0000:0000:0000:0000/128)
         // Longest IPv4 mapped IPv6 is 49 chars (0000:0000:0000:0000:0000:ffff:255.255.255.255/128)
-        if (value.Length == 0 || value.Length > 49)
+        if (value.Length < 2 || value.Length > 49)
         {
             result = default;
             return false;
