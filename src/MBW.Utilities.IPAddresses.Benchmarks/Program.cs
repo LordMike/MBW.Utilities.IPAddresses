@@ -1,4 +1,8 @@
-﻿using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
+using System;
+using System.Linq;
+using System.Reflection;
 
 namespace MBW.Utilities.IPAddresses.Benchmarks;
 
@@ -8,14 +12,12 @@ public class Program
     {
         new ParseIPv6Strategies().Iterative();
 
-        var switcher = new BenchmarkSwitcher(new[] {
-            typeof(FindCommonPrefix),
-            typeof(ParseIPv4s),
-            typeof(ReverseNumbers),
-            typeof(ParseIPv4Strategies),
-            typeof(ParseIPv6Strategies),
-            typeof(TokenizerTest)
-        });
+        Type[] benchmarkTypes = typeof(Program).Assembly
+            .GetTypes()
+            .Where(s => s.GetMethods().Any(x => x.GetCustomAttribute<BenchmarkAttribute>() != null))
+            .ToArray();
+
+        BenchmarkSwitcher switcher = new BenchmarkSwitcher(benchmarkTypes);
 
         switcher.Run(args);
     }
