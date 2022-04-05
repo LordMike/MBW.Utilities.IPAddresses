@@ -8,6 +8,7 @@ namespace MBW.Utilities.IPAddresses;
 
 public partial struct IpAddressNetworkV6
 {
+    /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV6}.Contains(IpAddressNetworkV6)"/>
     public bool Contains(IpAddressNetworkV6 other)
     {
         bool canBeInNetwork = _mask < other._mask;
@@ -29,6 +30,7 @@ public partial struct IpAddressNetworkV6
         }
     }
 
+    /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV6}.ContainsOrEqual(IpAddressNetworkV6)"/>
     public bool ContainsOrEqual(IpAddressNetworkV6 other)
     {
         bool canBeInNetwork = _mask <= other._mask;

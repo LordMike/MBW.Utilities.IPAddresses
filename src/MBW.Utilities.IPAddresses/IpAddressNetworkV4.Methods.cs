@@ -7,12 +7,14 @@ namespace MBW.Utilities.IPAddresses;
 
 public partial struct IpAddressNetworkV4
 {
+    /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV4}.Contains(IpAddressNetworkV4)"/>
     public bool Contains(IpAddressNetworkV4 other)
     {
         // In addition to ContainsOrEqual, the mask should be smaller as to not be equal
         return _mask < other._mask && ContainsOrEqual(other);
     }
 
+    /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV4}.ContainsOrEqual(IpAddressNetworkV4)"/>
     public bool ContainsOrEqual(IpAddressNetworkV4 other)
     {
         // Ensure the network part of both this and other are the same
