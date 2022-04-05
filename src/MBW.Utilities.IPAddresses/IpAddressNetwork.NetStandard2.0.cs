@@ -2,16 +2,16 @@
 
 namespace MBW.Utilities.IPAddresses;
 
-public partial class IpAddressRange
+public partial class IpAddressNetwork
 {
     [Obsolete("Will be removed post NetStandard2.0")]
-    public static IpAddressRange Parse(string input)
+    public static IpAddressNetwork Parse(string input)
     {
         return Parse(input.AsSpan());
     }
 
     [Obsolete("Will be removed post NetStandard2.0")]
-    public static bool TryParse(string input, out IpAddressRange range)
+    public static bool TryParse(string input, out IpAddressNetwork range)
     {
         return TryParse(input.AsSpan(), out range);
     }

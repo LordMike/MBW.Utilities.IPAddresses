@@ -15,7 +15,7 @@ public class FormatTests
     [InlineData("10/8")]
     public void IPv4Formats(string address)
     {
-        Assert.True(IpAddressRangeV4.TryParse(address, out _));
+        Assert.True(IpAddressNetworkV4.TryParse(address, out _));
     }
 
     /// <summary>
@@ -29,6 +29,6 @@ public class FormatTests
     [InlineData("::1/128")]
     public void IPv6Formats(string address)
     {
-        Assert.True(IpAddressRangeV6.TryParse(address, out _));
+        Assert.True(IpAddressNetworkV6.TryParse(address, out _));
     }
 }

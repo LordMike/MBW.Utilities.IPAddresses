@@ -5,7 +5,7 @@ using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses;
 
-public partial struct IpAddressRangeV4
+public partial struct IpAddressNetworkV4
 {
     private static readonly IPAddress Max = IPAddress.Parse("255.255.255.255");
 
@@ -65,14 +65,14 @@ public partial struct IpAddressRangeV4
     }
 
 #pragma warning disable CS0618
-    public IpAddressRangeV4(IPAddress address, byte mask = 32) : this(BitUtilities.Reverse((uint)address.Address), mask)
+    public IpAddressNetworkV4(IPAddress address, byte mask = 32) : this(BitUtilities.Reverse((uint)address.Address), mask)
 #pragma warning restore CS0618
     {
         if (address.AddressFamily != AddressFamily.InterNetwork)
             throw new ArgumentException();
     }
 
-    public IpAddressRangeV4(uint address, byte mask = 32)
+    public IpAddressNetworkV4(uint address, byte mask = 32)
     {
         if (mask > 32)
             throw new ArgumentException("Mask cannot be greater than 32 bits", nameof(mask));
@@ -85,22 +85,22 @@ public partial struct IpAddressRangeV4
     }
 
     /// <summary>
-    /// Creates an instance of <see cref="IpAddressRangeV4"/> from a network and broadcast address.
+    /// Creates an instance of <see cref="IpAddressNetworkV4"/> from a network and broadcast address.
     /// </summary>
     /// <param name="networkAddress">The network address. Note that it must be a network start address such as 10.0.0.0</param>
     /// <param name="broadcastAddress">The broadcast address. Note that it must be a broadcast address such as 10.255.255.255</param>
 #pragma warning disable CS0618
-    public IpAddressRangeV4(IPAddress networkAddress, IPAddress broadcastAddress) : this(BitUtilities.Reverse((uint)networkAddress.Address), BitUtilities.Reverse((uint)broadcastAddress.Address))
+    public IpAddressNetworkV4(IPAddress networkAddress, IPAddress broadcastAddress) : this(BitUtilities.Reverse((uint)networkAddress.Address), BitUtilities.Reverse((uint)broadcastAddress.Address))
 #pragma warning restore CS0618
     {
     }
 
     /// <summary>
-    /// Creates an instance of <see cref="IpAddressRangeV4"/> from a network and broadcast address.
+    /// Creates an instance of <see cref="IpAddressNetworkV4"/> from a network and broadcast address.
     /// </summary>
     /// <param name="networkAddress">The network address. Note that it must be a network start address such as 10.0.0.0</param>
     /// <param name="broadcastAddress">The broadcast address. Note that it must be a broadcast address such as 10.255.255.255</param>
-    public IpAddressRangeV4(uint networkAddress, uint broadcastAddress)
+    public IpAddressNetworkV4(uint networkAddress, uint broadcastAddress)
     {
         uint ip = networkAddress ^ broadcastAddress;
 

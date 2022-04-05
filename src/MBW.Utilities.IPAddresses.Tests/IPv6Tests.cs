@@ -19,7 +19,7 @@ public class IPv6Tests
     //[InlineData("2001:0db8:0000:0000:0000:8a2e:0370:7334", "2001:0db8::8a2e:0370:7334%3")] //We should support scope
     public void ValidFormatsTests(string expected, string test)
     {
-        IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
+        IpAddressNetworkV6 parsed = IpAddressNetworkV6.Parse(test);
         IPAddress expectedIp = IPAddress.Parse(expected);
 
         parsed.Mask.Should().Be(128);
@@ -36,7 +36,7 @@ public class IPv6Tests
     [InlineData("::192.168.10.1", "::192.168.10.1")]
     public void ValidIPv4CompatibleIPv6FormatTests(string expected, string test)
     {
-        IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
+        IpAddressNetworkV6 parsed = IpAddressNetworkV6.Parse(test);
         IPAddress expectedIp = IPAddress.Parse(expected);
 
         parsed.Mask.Should().Be(128);
@@ -62,7 +62,7 @@ public class IPv6Tests
     {
         var expectedWithoutSlash = expected.Split('/').First();
 
-        IpAddressRangeV6 parsed = IpAddressRangeV6.Parse(test);
+        IpAddressNetworkV6 parsed = IpAddressNetworkV6.Parse(test);
         IPAddress expectedIp = IPAddress.Parse(expectedWithoutSlash);
 
         parsed.Address.Should().Be(expectedIp);
@@ -92,7 +92,7 @@ public class IPv6Tests
     [InlineData("2001:0db8::8a2e:192.168.0.1")] // Badly formatted IPv4 in IPv6
     public void InvalidFormatsTests(string test)
     {
-        IpAddressRangeV6.TryParse(test, out _).Should().BeFalse();
+        IpAddressNetworkV6.TryParse(test, out _).Should().BeFalse();
     }
 
     [Theory]
@@ -109,13 +109,13 @@ public class IPv6Tests
     [InlineData("0000:0000:0000:0000:0000:0000:0000:0000", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0)]
     public void BasicTest(string address, string end, byte mask)
     {
-        IpAddressRangeV6 ip = new IpAddressRangeV6(IPAddress.Parse(address), mask);
+        IpAddressNetworkV6 ip = new IpAddressNetworkV6(IPAddress.Parse(address), mask);
 
         ip.Mask.Should().Be(mask);
         ip.Address.Should().Be(IPAddress.Parse(address));
         ip.EndAddress.Should().Be(IPAddress.Parse(end));
 
-        IpAddressRangeV6 asCustomParsed = IpAddressRangeV6.Parse(address + "/" + mask);
+        IpAddressNetworkV6 asCustomParsed = IpAddressNetworkV6.Parse(address + "/" + mask);
 
         asCustomParsed.Should().Be(ip);
     }

@@ -6,7 +6,7 @@ using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses;
 
-public partial struct IpAddressRangeV6
+public partial struct IpAddressNetworkV6
 {
     private static readonly Regex IpRegex = new Regex(@"^([a-fA-F0-9:\.]*)(?:/([0-9]{1,3}))?$", RegexOptions.Compiled);
     private static readonly IPAddress Max = IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
@@ -91,21 +91,21 @@ public partial struct IpAddressRangeV6
         }
     }
 
-    public IpAddressRangeV6(IPAddress address, byte mask = 128)
+    public IpAddressNetworkV6(IPAddress address, byte mask = 128)
         : this(address.GetAddressBytes(), mask)
     {
         if (address.AddressFamily != AddressFamily.InterNetworkV6)
             throw new ArgumentException();
     }
 
-    private IpAddressRangeV6(byte[] address, byte mask = 128)
+    private IpAddressNetworkV6(byte[] address, byte mask = 128)
         : this(BitUtilities.Reverse(BitConverter.ToUInt64(address, 0)), BitUtilities.Reverse(BitConverter.ToUInt64(address, 8)), mask)
     {
         if (address.Length != 16)
             throw new ArgumentException();
     }
 
-    public IpAddressRangeV6(ulong addressHigh, ulong addressLow, byte mask = 128)
+    public IpAddressNetworkV6(ulong addressHigh, ulong addressLow, byte mask = 128)
     {
         _addressLow = addressLow;
         _addressHigh = addressHigh;

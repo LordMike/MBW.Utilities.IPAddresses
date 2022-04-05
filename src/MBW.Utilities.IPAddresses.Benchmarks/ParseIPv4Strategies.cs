@@ -11,15 +11,15 @@ public class ParseIPv4Strategies
     private readonly Regex _ipRegex = new Regex("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}↵(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     [Benchmark]
-    public IpAddressRangeV4 CurrentIPv4Parser()
+    public IpAddressNetworkV4 CurrentIPv4Parser()
     {
-        return IpAddressRangeV4.Parse("192.168.10.1");
+        return IpAddressNetworkV4.Parse("192.168.10.1");
     }
 
     [Benchmark]
-    public IpAddressRangeV4 CurrentIPv4UnstableParser()
+    public IpAddressNetworkV4 CurrentIPv4UnstableParser()
     {
-        return IpAddressRangeV4.ParseUnstable("192.168.10.1");
+        return IpAddressNetworkV4.ParseUnstable("192.168.10.1");
     }
 
     [Benchmark]
@@ -29,7 +29,7 @@ public class ParseIPv4Strategies
     }
 
     [Benchmark]
-    public IpAddressRangeV4 Iterative()
+    public IpAddressNetworkV4 Iterative()
     {
         return ParseIterative("192.168.10.1/24");
     }
@@ -40,7 +40,7 @@ public class ParseIPv4Strategies
         return _ipRegex.IsMatch("192.168.10.1");
     }
 
-    private static IpAddressRangeV4 ParseIterative(string str)
+    private static IpAddressNetworkV4 ParseIterative(string str)
     {
         byte currentOctet = 0;
         byte dots = 0;
@@ -96,6 +96,6 @@ public class ParseIPv4Strategies
             currentOctet = 32;
         }
 
-        return new IpAddressRangeV4(ip, currentOctet);
+        return new IpAddressNetworkV4(ip, currentOctet);
     }
 }

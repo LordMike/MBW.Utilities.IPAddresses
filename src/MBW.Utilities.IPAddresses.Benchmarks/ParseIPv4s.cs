@@ -5,26 +5,26 @@ namespace MBW.Utilities.IPAddresses.Benchmarks;
 public class ParseIPv4s
 {
     [Benchmark]
-    public IpAddressRangeV4 WithCidr04() => IpAddressRangeV4.Parse("192.168.10.1/32");
+    public IpAddressNetworkV4 WithCidr04() => IpAddressNetworkV4.Parse("192.168.10.1/32");
 
     [Benchmark]
-    public IpAddressRangeV4 WithCidr03() => IpAddressRangeV4.Parse("192.168.10/32");
+    public IpAddressNetworkV4 WithCidr03() => IpAddressNetworkV4.Parse("192.168.10/32");
 
     [Benchmark]
-    public IpAddressRangeV4 WithCidr02() => IpAddressRangeV4.Parse("192.168/32");
+    public IpAddressNetworkV4 WithCidr02() => IpAddressNetworkV4.Parse("192.168/32");
 
     [Benchmark]
-    public IpAddressRangeV4 WithCidr01() => IpAddressRangeV4.Parse("192/32");
+    public IpAddressNetworkV4 WithCidr01() => IpAddressNetworkV4.Parse("192/32");
 
     [Benchmark]
-    public IpAddressRangeV4 NoCidr04() => IpAddressRangeV4.Parse("192.168.10.1");
+    public IpAddressNetworkV4 NoCidr04() => IpAddressNetworkV4.Parse("192.168.10.1");
 
     [Benchmark]
-    public IpAddressRangeV4 NoCidr03() => IpAddressRangeV4.Parse("192.168.10");
+    public IpAddressNetworkV4 NoCidr03() => IpAddressNetworkV4.Parse("192.168.10");
 
     [Benchmark]
-    public IpAddressRangeV4 NoCidr02() => IpAddressRangeV4.Parse("192.168");
+    public IpAddressNetworkV4 NoCidr02() => IpAddressNetworkV4.Parse("192.168");
 
     [Benchmark]
-    public IpAddressRangeV4 NoCidr01() => IpAddressRangeV4.Parse("192");
+    public IpAddressNetworkV4 NoCidr01() => IpAddressNetworkV4.Parse("192");
 }

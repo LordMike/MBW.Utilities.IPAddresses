@@ -7,15 +7,15 @@ namespace MBW.Utilities.IPAddresses.Benchmarks;
 public class ParseIPv6Strategies
 {
     [Benchmark]
-    public IpAddressRangeV6 CurrentIPv6Parser()
+    public IpAddressNetworkV6 CurrentIPv6Parser()
     {
-        return IpAddressRangeV6.Parse("2001:0dff:44ff:0:1744::ffff/64");
+        return IpAddressNetworkV6.Parse("2001:0dff:44ff:0:1744::ffff/64");
     }
 
     [Benchmark]
-    public IpAddressRangeV6 CurrentIPv6UnstableParser()
+    public IpAddressNetworkV6 CurrentIPv6UnstableParser()
     {
-        return IpAddressRangeV6.ParseUnstable("2001:0dff:44ff:0:1744::ffff/64");
+        return IpAddressNetworkV6.ParseUnstable("2001:0dff:44ff:0:1744::ffff/64");
     }
 
     [Benchmark]
@@ -25,13 +25,13 @@ public class ParseIPv6Strategies
     }
 
     [Benchmark]
-    public IpAddressRangeV6 Iterative()
+    public IpAddressNetworkV6 Iterative()
     {
-        IpAddressRangeV6 ip = IterativeParse("2001:dff:44ff:0:1744::ffff:4d4d/120");
+        IpAddressNetworkV6 ip = IterativeParse("2001:dff:44ff:0:1744::ffff:4d4d/120");
         return ip;
     }
 
-    private static IpAddressRangeV6 IterativeParse(string str)
+    private static IpAddressNetworkV6 IterativeParse(string str)
     {
         ReadOnlySpan<char> @string = str.AsSpan();
 
@@ -183,6 +183,6 @@ public class ParseIPv6Strategies
             }
         }
 
-        return new IpAddressRangeV6(high, low, mask);
+        return new IpAddressNetworkV6(high, low, mask);
     }
 }

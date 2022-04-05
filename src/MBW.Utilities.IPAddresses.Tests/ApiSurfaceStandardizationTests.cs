@@ -26,9 +26,9 @@ public class ApiSurfaceStandardizationTests
 
         _types = new Dictionary<Type, HashSet<string>>
         {
-            { typeof(IpAddressRangeV4), GetMethods<IpAddressRangeV4>() },
-            { typeof(IpAddressRangeV6), GetMethods<IpAddressRangeV6>() },
-            { typeof(IpAddressRange), GetMethods<IpAddressRange>() }
+            { typeof(IpAddressNetworkV4), GetMethods<IpAddressNetworkV4>() },
+            { typeof(IpAddressNetworkV6), GetMethods<IpAddressNetworkV6>() },
+            { typeof(IpAddressNetwork), GetMethods<IpAddressNetwork>() }
         };
     }
 
@@ -36,11 +36,11 @@ public class ApiSurfaceStandardizationTests
     {
         Regex tReplacer = new Regex(@"\bT\b");
 
-        var specificTypes = new[] { typeof(IpAddressRangeV4), typeof(IpAddressRangeV6) };
+        var specificTypes = new[] { typeof(IpAddressNetworkV4), typeof(IpAddressNetworkV6) };
 
         object[] Make<T>(string signature) => new object[] { typeof(T), signature };
 
-        IEnumerable<object[]> MakeAll(string signature) => new[] { Make<IpAddressRangeV4>(signature), Make<IpAddressRangeV6>(signature), Make<IpAddressRange>(signature) };
+        IEnumerable<object[]> MakeAll(string signature) => new[] { Make<IpAddressNetworkV4>(signature), Make<IpAddressNetworkV6>(signature), Make<IpAddressNetwork>(signature) };
         IEnumerable<object[]> MakeWithT<T>(string signature, Type[] tTypes) => tTypes.Select(s => tReplacer.Replace(signature, s.FullName)).Select(Make<T>);
 
         return
@@ -56,13 +56,13 @@ public class ApiSurfaceStandardizationTests
                 .Concat(MakeAll("instance Byte get_Mask()"))
                 // Set methods
                 .Concat(MakeAll("instance Boolean Contains(T)"))
-                .Concat(MakeWithT<IpAddressRange>("instance Boolean Contains(T)", specificTypes))
+                .Concat(MakeWithT<IpAddressNetwork>("instance Boolean Contains(T)", specificTypes))
                 .Concat(MakeAll("instance Boolean ContainsOrEqual(T)"))
-                .Concat(MakeWithT<IpAddressRange>("instance Boolean ContainsOrEqual(T)", specificTypes))
+                .Concat(MakeWithT<IpAddressNetwork>("instance Boolean ContainsOrEqual(T)", specificTypes))
                 .Concat(MakeAll("instance Boolean IsContainedIn(T)"))
-                .Concat(MakeWithT<IpAddressRange>("instance Boolean IsContainedIn(T)", specificTypes))
+                .Concat(MakeWithT<IpAddressNetwork>("instance Boolean IsContainedIn(T)", specificTypes))
                 .Concat(MakeAll("instance Boolean IsContainedInOrEqual(T)"))
-                .Concat(MakeWithT<IpAddressRange>("instance Boolean IsContainedInOrEqual(T)", specificTypes))
+                .Concat(MakeWithT<IpAddressNetwork>("instance Boolean IsContainedInOrEqual(T)", specificTypes))
                 .Concat(MakeAll("static T MakeSupernet(System.Collections.Generic.IEnumerable`1[T])"))
                 .Concat(MakeAll("static T MakeSupernet(T[])"))
                 // Utilities to convert to .NET
@@ -84,8 +84,8 @@ public class ApiSurfaceStandardizationTests
                 .Concat(MakeAll("static Boolean op_GreaterThan(T, T)"))
                 .Concat(MakeAll("static Boolean op_GreaterThanOrEqual(T, T)"))
                 // IpAddressRange specific
-                .Append(Make<IpAddressRange>("static T op_Implicit(MBW.Utilities.IPAddresses.IpAddressRangeV4)"))
-                .Append(Make<IpAddressRange>("static T op_Implicit(MBW.Utilities.IPAddresses.IpAddressRangeV6)"));
+                .Append(Make<IpAddressNetwork>("static T op_Implicit(MBW.Utilities.IPAddresses.IpAddressNetworkV4)"))
+                .Append(Make<IpAddressNetwork>("static T op_Implicit(MBW.Utilities.IPAddresses.IpAddressNetworkV6)"));
     }
 
     /// <summary>

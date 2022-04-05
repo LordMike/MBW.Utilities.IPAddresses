@@ -4,10 +4,10 @@ using System.Net.Sockets;
 
 namespace MBW.Utilities.IPAddresses;
 
-public partial class IpAddressRange
+public partial class IpAddressNetwork
 {
-    private IpAddressRangeV4? _v4;
-    private IpAddressRangeV6? _v6;
+    private IpAddressNetworkV4? _v4;
+    private IpAddressNetworkV6? _v6;
 
     public byte Mask => Type == IpAddressRangeType.IPv4 ? _v4!.Value.Mask : _v6!.Value.Mask;
 
@@ -17,22 +17,22 @@ public partial class IpAddressRange
 
     public IpAddressRangeType Type { get; }
 
-    public IpAddressRangeV4 AsV4 => GetV4();
-    public IpAddressRangeV6 AsV6 => GetV6();
+    public IpAddressNetworkV4 AsV4 => GetV4();
+    public IpAddressNetworkV6 AsV6 => GetV6();
 
-    public IpAddressRange(IpAddressRangeV4 value)
+    public IpAddressNetwork(IpAddressNetworkV4 value)
     {
         _v4 = value;
         Type = IpAddressRangeType.IPv4;
     }
 
-    public IpAddressRange(IpAddressRangeV6 value)
+    public IpAddressNetwork(IpAddressNetworkV6 value)
     {
         _v6 = value;
         Type = IpAddressRangeType.IPv6;
     }
 
-    public IpAddressRange(IPAddress value)
+    public IpAddressNetwork(IPAddress value)
     {
         if (value.AddressFamily == AddressFamily.InterNetwork)
         {
@@ -48,7 +48,7 @@ public partial class IpAddressRange
             throw new ArgumentException();
     }
 
-    private IpAddressRange(IpAddressRangeV4? v4, IpAddressRangeV6? v6)
+    private IpAddressNetwork(IpAddressNetworkV4? v4, IpAddressNetworkV6? v6)
     {
         if (v4.HasValue)
         {
