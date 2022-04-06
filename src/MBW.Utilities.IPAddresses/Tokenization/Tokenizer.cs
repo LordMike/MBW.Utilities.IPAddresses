@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -63,63 +63,64 @@ internal ref struct Tokenizer
             return new(TokenType.Colon, 0);
         }
 
-        if (ParseChar(ch, isHexadecimal) != byte.MaxValue)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool isHex(char ch) => '0' <= ch && ch <= '9' || 'A' <= ch && ch <= 'F' || 'a' <= ch && ch <= 'f';
+
+        if (isHex(ch))
         {
-            // Read entire number
-            ushort val = 0;
-            ushort multiplier = 1;
-            int toRead = Math.Min(input.Length, 4);
-
-            for (int i = 0; i < toRead; i++)
+            // Determine how many chars to parse
+            // Note: We know the first char is already hex, so we skip checking that
+            int maxRead = Math.Min(input.Length, 4);
+            for (read = 1; read < maxRead; read++)
             {
-                ch = input[idx + increment * i];
-                byte bt = ParseChar(ch, isHexadecimal);
-
-                if (bt == byte.MaxValue)
+                if (!isHex(input[idx + increment * read]))
                     break;
-
-                read++;
-
-                if (forward)
-                {
-                    // Shift the current value, and add the new in
-                    if (isHexadecimal)
-                        val <<= 4;
-                    else
-                        val *= 10;
-
-                    val += bt;
-                }
-                else
-                {
-                    // Shift the new value, add it in
-                    val += (ushort)(multiplier * bt);
-
-                    if (isHexadecimal)
-                        multiplier *= 16;
-                    else
-                        multiplier *= 10;
-                }
             }
 
-            if (read > 0)
-                return new(TokenType.Number, val);
+            // Read entire number from 'char' chars
+            ReadOnlySpan<char> numberChars;
+            if (forward)
+                numberChars = input[..read];
+            else
+                numberChars = input[^read..];
+
+            int val = 0;
+
+            foreach (char numberChar in numberChars)
+            {
+                int bt = ParseChar(numberChar, isHexadecimal);
+
+                // Shift the current value, and add the new in
+                if (isHexadecimal)
+                    val <<= 4;
+                else
+                    val *= 10;
+
+                val += bt;
+            }
+
+            return new(TokenType.Number, (ushort)val);
         }
 
         return new(TokenType.Unknown, 0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static byte ParseChar(char ch, bool isHexadecimal)
+    private static int ParseChar(int ch, bool isHexadecimal)
     {
-        return ch switch
-        {
-            >= '0' and <= '9' => (byte)(ch - '0'),
-            _ when !isHexadecimal => byte.MaxValue,
-            >= 'A' and <= 'F' => (byte)(10 + ch - 'A'),
-            >= 'a' and <= 'f' => (byte)(10 + ch - 'a'),
-            _ => byte.MaxValue
-        };
+        if ((uint)(ch - '0') <= 9)
+            return ch - '0';
+
+        if (!isHexadecimal)
+            return int.MaxValue;
+
+        if ((uint)(ch - 'A') <= 5)
+            return 10 + ch - 'A';
+
+        if ((uint)(ch - 'a') <= 5)
+            return 10 + ch - 'a';
+
+        return int.MaxValue;
     }
 
     public ParsedToken ParseAndAdvanceStart(bool isHexadecimal = true)

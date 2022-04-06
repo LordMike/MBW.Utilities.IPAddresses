@@ -95,7 +95,16 @@ public class TokenizerTests
     }
 
     [Fact]
-    public void ComplexValue()
+    public void ComplexValueIPv4()
+    {
+        Tokenizer tokenizer = new("192.168.114.255/32");
+
+        List<ParsedToken> parsed = tokenizer.ParseAllStart(false).ToList();
+        Assert.Equal(9, parsed.Count);
+    }
+
+    [Fact]
+    public void ComplexValueIPv6()
     {
         Tokenizer tokenizer = new("2001:0dff:44ff:0:1744:ffff/64");
 

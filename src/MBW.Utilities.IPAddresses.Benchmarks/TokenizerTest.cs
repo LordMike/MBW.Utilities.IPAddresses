@@ -36,6 +36,34 @@ public class TokenizerTest
     }
 
     [Benchmark]
+    public void DoTokenizationIPv4()
+    {
+        ReadOnlySpan<char> span = "192.168.144.244/32".AsSpan();
+
+        Tokenizer tokenizer = new(span);
+
+        ParsedToken parsed;
+        do
+        {
+            parsed = tokenizer.ParseAndAdvanceStart(false);
+        } while (parsed.Type != TokenType.None);
+    }
+
+    [Benchmark]
+    public void DoTokenizationIPv4_Rev()
+    {
+        ReadOnlySpan<char> span = "192.168.144.244/32".AsSpan();
+
+        Tokenizer tokenizer = new(span);
+
+        ParsedToken parsed;
+        do
+        {
+            parsed = tokenizer.ParseAndAdvanceEnd(false);
+        } while (parsed.Type != TokenType.None);
+    }
+
+    [Benchmark]
     public int PrevVersion_DoTokenizationIPv6()
     {
         ReadOnlySpan<char> span = "2001:0dff:44ff:0:1744:ffff/64".AsSpan();

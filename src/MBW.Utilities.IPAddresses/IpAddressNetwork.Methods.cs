@@ -7,6 +7,7 @@ namespace MBW.Utilities.IPAddresses;
 
 public partial class IpAddressNetwork
 {
+    /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetwork}.Contains(IpAddressNetwork)"/>
     public bool Contains(IpAddressNetwork other)
     {
         return other.Type switch
@@ -17,7 +18,9 @@ public partial class IpAddressNetwork
         };
     }
 
+    /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV4}.Contains(IpAddressNetworkV4)"/>
     public bool Contains(IpAddressNetworkV4 other) => GetV4().Contains(other);
+    /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV6}.Contains(IpAddressNetworkV6)"/>
     public bool Contains(IpAddressNetworkV6 other) => GetV6().Contains(other);
 
     public bool ContainsOrEqual(IpAddressNetwork other)
