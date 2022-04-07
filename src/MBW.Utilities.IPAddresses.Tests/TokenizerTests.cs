@@ -13,10 +13,10 @@ public class TokenizerTests
     {
         void Test(Func<ParsedToken> func) => func().Type.Should().Be(TokenType.None);
 
-        Test(() => new Tokenizer(string.Empty).ParseAndAdvanceStart());
-        Test(() => new Tokenizer(string.Empty).ParseAndAdvanceEnd());
-        Test(() => new Tokenizer(string.Empty).PeekStart());
-        Test(() => new Tokenizer(string.Empty).PeekEnd());
+        Test(() => new Tokenizer(string.Empty).ParseAndAdvance());
+        Test(() => new Tokenizer(string.Empty).ParseAndAdvanceReverse());
+        Test(() => new Tokenizer(string.Empty).Peek());
+        Test(() => new Tokenizer(string.Empty).PeekReverse());
     }
 
     [Fact]
@@ -35,10 +35,10 @@ public class TokenizerTests
             new(TokenType.Number, 192)
         };
 
-        IEnumerable<ParsedToken> tokens = tokenizer.ParseAllEnd(false);
+        IEnumerable<ParsedToken> tokens = tokenizer.ParseAllReverse(false);
         tokens.Should().Equal(expected);
 
-        tokenizer.ParseAndAdvanceStart().Type.Should().Be(TokenType.None);
+        tokenizer.ParseAndAdvance().Type.Should().Be(TokenType.None);
     }
 
     [Fact]
@@ -59,10 +59,10 @@ public class TokenizerTests
             new(TokenType.Number, 32)
         };
 
-        IEnumerable<ParsedToken> tokens = tokenizer.ParseAllStart(false);
+        IEnumerable<ParsedToken> tokens = tokenizer.ParseAll(false);
         tokens.Should().Equal(expected);
 
-        tokenizer.ParseAndAdvanceStart().Type.Should().Be(TokenType.None);
+        tokenizer.ParseAndAdvance().Type.Should().Be(TokenType.None);
     }
 
     [Fact]
@@ -87,9 +87,9 @@ public class TokenizerTests
             new(TokenType.Number, 0x64) // This would normally be base-10, but in this test it will be come hex.
         };
 
-        IEnumerable<ParsedToken> tokens = tokenizer.ParseAllStart();
+        IEnumerable<ParsedToken> tokens = tokenizer.ParseAll();
         tokens.Should().Equal(expected);
 
-        tokenizer.ParseAndAdvanceStart().Type.Should().Be(TokenType.None);
+        tokenizer.ParseAndAdvance().Type.Should().Be(TokenType.None);
     }
 }

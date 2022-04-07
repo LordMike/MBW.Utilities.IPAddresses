@@ -37,11 +37,11 @@ public partial struct IpAddressNetworkV6
         bool doReverse = false;
 
         // First pass, try reading a mask from the end of the input
-        ParsedToken tkn = tokenizer.PeekEnd(false);
+        ParsedToken tkn = tokenizer.PeekReverse(false);
         if (tkn.Type == TokenType.Number)
         {
             // Could be a number, therefor a CIDR range or IPv4
-            ParsedToken slashTkn = tokenizer.PeekEnd(false);
+            ParsedToken slashTkn = tokenizer.PeekReverse(false);
             if (slashTkn.Type == TokenType.Slash && tkn.Value <= 128)
             {
                 cidr = (byte)tkn.Value;
@@ -65,11 +65,11 @@ public partial struct IpAddressNetworkV6
         // Test if this could be an IPv4 mapped IPv6
         // This could be the case if the last two tokens are [Dot, Number]
         // Like '::ffff:192.168.1.0'
-        tkn = tokenizer.PeekEnd(false);
+        tkn = tokenizer.PeekReverse(false);
         if (tkn.Type == TokenType.Number)
         {
             // If the next-to-last is a Dot, pass it on
-            var tmpTkn = tokenizer.PeekEnd(false);
+            var tmpTkn = tokenizer.PeekReverse(false);
 
             tokenizer.ResetPeekOffsets();
 
@@ -82,7 +82,7 @@ public partial struct IpAddressNetworkV6
         // Read up till a double-colon, eof or slash
         for (byte i = 0; i < 8; i++)
         {
-            tkn = tokenizer.ParseAndAdvanceStart(true);
+            tkn = tokenizer.ParseAndAdvance(true);
             if (tkn.Type == TokenType.None)
                 break;
 
@@ -92,7 +92,7 @@ public partial struct IpAddressNetworkV6
                 if (tkn.Type == TokenType.Colon)
                 {
                     // Advance once more
-                    tkn = tokenizer.ParseAndAdvanceStart(true);
+                    tkn = tokenizer.ParseAndAdvance(true);
                 }
                 else if (tkn.Type != TokenType.DoubleColon)
                 {
@@ -126,7 +126,7 @@ public partial struct IpAddressNetworkV6
 
             for (byte i = 0; i < toRead; i++)
             {
-                tkn = tokenizer.ParseAndAdvanceEnd(true);
+                tkn = tokenizer.ParseAndAdvanceReverse(true);
                 if (tkn.Type == TokenType.None)
                     break;
 
@@ -140,7 +140,7 @@ public partial struct IpAddressNetworkV6
                     }
 
                     // Advance once more
-                    tkn = tokenizer.ParseAndAdvanceEnd(true);
+                    tkn = tokenizer.ParseAndAdvanceReverse(true);
                 }
 
                 // Read a number
@@ -173,7 +173,7 @@ public partial struct IpAddressNetworkV6
 
         for (byte i = 0; i < toRead; i++)
         {
-            token = tokenizer.ParseAndAdvanceEnd(false);
+            token = tokenizer.ParseAndAdvanceReverse(false);
             if (token.Type == TokenType.None)
                 break;
 
@@ -187,7 +187,7 @@ public partial struct IpAddressNetworkV6
                 }
 
                 // Advance once more
-                token = tokenizer.ParseAndAdvanceEnd(false);
+                token = tokenizer.ParseAndAdvanceReverse(false);
             }
 
             // Read a number
@@ -204,7 +204,7 @@ public partial struct IpAddressNetworkV6
         }
 
         // Assert that the next tokens are [Double-/Colon, ffff, Colon]
-        token = tokenizer.ParseAndAdvanceEnd(false);
+        token = tokenizer.ParseAndAdvanceReverse(false);
 
         if (token.Type != TokenType.Colon)
         {
@@ -212,7 +212,7 @@ public partial struct IpAddressNetworkV6
             return false;
         }
 
-        token = tokenizer.ParseAndAdvanceEnd(true);
+        token = tokenizer.ParseAndAdvanceReverse(true);
 
         if (token.Type != TokenType.Number || token.Value != 0xffff)
         {
@@ -220,7 +220,7 @@ public partial struct IpAddressNetworkV6
             return false;
         }
 
-        token = tokenizer.ParseAndAdvanceEnd(false);
+        token = tokenizer.ParseAndAdvanceReverse(false);
 
         if (token.Type is not TokenType.Colon && token.Type is not TokenType.DoubleColon)
         {

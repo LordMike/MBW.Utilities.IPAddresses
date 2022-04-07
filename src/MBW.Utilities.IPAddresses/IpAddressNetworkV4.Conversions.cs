@@ -34,7 +34,7 @@ public partial struct IpAddressNetworkV4
         int i;
         for (i = 0; i < 4; i++)
         {
-            token = tokenizer.ParseAndAdvanceStart(false);
+            token = tokenizer.ParseAndAdvance(false);
 
             // Read a dot, or break on slashes
             if (i > 0)
@@ -50,7 +50,7 @@ public partial struct IpAddressNetworkV4
                 }
 
                 // Advance once more
-                token = tokenizer.ParseAndAdvanceStart(false);
+                token = tokenizer.ParseAndAdvance(false);
             }
 
             // Read a number
@@ -71,12 +71,12 @@ public partial struct IpAddressNetworkV4
 
         // Parse the Cidr
         if (token.Type != TokenType.Slash)
-            token = tokenizer.ParseAndAdvanceStart(false);
+            token = tokenizer.ParseAndAdvance(false);
 
         if (token.Type == TokenType.Slash)
         {
             // Read a number, as the cidr
-            token = tokenizer.ParseAndAdvanceStart(false);
+            token = tokenizer.ParseAndAdvance(false);
 
             if (token.Type != TokenType.Number || token.Value > 32)
             {
@@ -88,7 +88,7 @@ public partial struct IpAddressNetworkV4
             cidr = (byte)token.Value;
 
             // Advance once more
-            token = tokenizer.ParseAndAdvanceStart(false);
+            token = tokenizer.ParseAndAdvance(false);
         }
 
         // We now expect the end

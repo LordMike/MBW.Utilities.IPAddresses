@@ -123,7 +123,7 @@ internal ref struct Tokenizer
         return int.MaxValue;
     }
 
-    public ParsedToken ParseAndAdvanceStart(bool isHexadecimal = true)
+    public ParsedToken ParseAndAdvance(bool isHexadecimal = true)
     {
         ParsedToken parsed = Interpret(_value, true, isHexadecimal, out int read);
 
@@ -133,7 +133,7 @@ internal ref struct Tokenizer
         return parsed;
     }
 
-    public ParsedToken PeekStart(bool isHexadecimal = true)
+    public ParsedToken Peek(bool isHexadecimal = true)
     {
         ParsedToken parsed = Interpret(_temp, true, isHexadecimal, out int read);
 
@@ -142,7 +142,7 @@ internal ref struct Tokenizer
         return parsed;
     }
 
-    public ParsedToken ParseAndAdvanceEnd(bool isHexadecimal = true)
+    public ParsedToken ParseAndAdvanceReverse(bool isHexadecimal = true)
     {
         ParsedToken parsed = Interpret(_value, false, isHexadecimal, out int read);
 
@@ -152,7 +152,7 @@ internal ref struct Tokenizer
         return parsed;
     }
 
-    public ParsedToken PeekEnd(bool isHexadecimal = true)
+    public ParsedToken PeekReverse(bool isHexadecimal = true)
     {
         ParsedToken parsed = Interpret(_temp, false, isHexadecimal, out int read);
 
@@ -161,23 +161,23 @@ internal ref struct Tokenizer
         return parsed;
     }
 
-    public IEnumerable<ParsedToken> ParseAllStart(bool isHexadecimal = true)
+    public IEnumerable<ParsedToken> ParseAll(bool isHexadecimal = true)
     {
         List<ParsedToken> tokens = new List<ParsedToken>(10);
 
         ParsedToken parsed;
-        while ((parsed = ParseAndAdvanceStart(isHexadecimal)).Type != TokenType.None)
+        while ((parsed = ParseAndAdvance(isHexadecimal)).Type != TokenType.None)
             tokens.Add(parsed);
 
         return tokens;
     }
 
-    public IEnumerable<ParsedToken> ParseAllEnd(bool isHexadecimal = false)
+    public IEnumerable<ParsedToken> ParseAllReverse(bool isHexadecimal = false)
     {
         List<ParsedToken> tokens = new List<ParsedToken>(10);
 
         ParsedToken parsed;
-        while ((parsed = ParseAndAdvanceEnd(isHexadecimal)).Type != TokenType.None)
+        while ((parsed = ParseAndAdvanceReverse(isHexadecimal)).Type != TokenType.None)
             tokens.Add(parsed);
 
         return tokens;

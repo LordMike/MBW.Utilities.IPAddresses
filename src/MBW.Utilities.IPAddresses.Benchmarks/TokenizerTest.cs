@@ -17,7 +17,7 @@ public class TokenizerTest
         ParsedToken parsed;
         do
         {
-            parsed = tokenizer.ParseAndAdvanceStart();
+            parsed = tokenizer.ParseAndAdvance();
         } while (parsed.Type != TokenType.None);
     }
 
@@ -31,7 +31,7 @@ public class TokenizerTest
         ParsedToken parsed;
         do
         {
-            parsed = tokenizer.ParseAndAdvanceEnd();
+            parsed = tokenizer.ParseAndAdvanceReverse();
         } while (parsed.Type != TokenType.None);
     }
 
@@ -45,7 +45,7 @@ public class TokenizerTest
         ParsedToken parsed;
         do
         {
-            parsed = tokenizer.ParseAndAdvanceStart(false);
+            parsed = tokenizer.ParseAndAdvance(false);
         } while (parsed.Type != TokenType.None);
     }
 
@@ -59,7 +59,7 @@ public class TokenizerTest
         ParsedToken parsed;
         do
         {
-            parsed = tokenizer.ParseAndAdvanceEnd(false);
+            parsed = tokenizer.ParseAndAdvanceReverse(false);
         } while (parsed.Type != TokenType.None);
     }
 
