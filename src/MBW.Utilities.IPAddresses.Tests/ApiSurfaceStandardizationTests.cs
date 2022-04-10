@@ -1,94 +1,90 @@
-﻿using FluentAssertions;
+using MBW.Tests.SignaturesTester;
+using MBW.Utilities.IPAddresses.Tests.SignaturesLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
+using System.Numerics;
 using Xunit;
 
 namespace MBW.Utilities.IPAddresses.Tests;
 
 public class ApiSurfaceStandardizationTests
 {
-    private static readonly Dictionary<Type, HashSet<string>> _types;
+    private static readonly TypesMethodStore _store;
+    private static readonly Dictionary<Type, HashSet<string>> _types = new();
 
     static ApiSurfaceStandardizationTests()
     {
-        HashSet<string> GetMethods<T>()
-        {
-            Type type = typeof(T);
-            Regex replacer = new Regex("\\b" + Regex.Escape(type.FullName) + "\\b", RegexOptions.Compiled);
+        _store = new();
 
-            return type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
-                .Select(s => (s.IsStatic ? "static " : "instance ") + s)
-                .Select(s => replacer.Replace(s, "T"))
-                .ToHashSet(StringComparer.Ordinal);
-        }
-
-        _types = new Dictionary<Type, HashSet<string>>
-        {
-            { typeof(IpAddressNetworkV4), GetMethods<IpAddressNetworkV4>() },
-            { typeof(IpAddressNetworkV6), GetMethods<IpAddressNetworkV6>() },
-            { typeof(IpAddressNetwork), GetMethods<IpAddressNetwork>() }
-        };
+        _store.Add<IpAddressNetworkV4>();
+        _store.Add<IpAddressNetworkV6>();
+        _store.Add<IpAddressV4>();
+        _store.Add<IpAddressV6>();
     }
 
     public static IEnumerable<object[]> GetMethodSignatures()
     {
-        Regex tReplacer = new Regex(@"\bT\b");
+        Type GetAddressType(Type networkType)
+        {
+            if (networkType == typeof(IpAddressNetworkV4))
+                return typeof(IpAddressV4);
+            if (networkType == typeof(IpAddressNetworkV6))
+                return typeof(IpAddressV6);
+            throw new ArgumentOutOfRangeException(nameof(networkType));
+        }
+        Type GetNetworkType(Type addressType)
+        {
+            if (addressType == typeof(IpAddressV4))
+                return typeof(IpAddressNetworkV4);
+            if (addressType == typeof(IpAddressV6))
+                return typeof(IpAddressNetworkV6);
+            throw new ArgumentOutOfRangeException(nameof(addressType));
+        }
 
-        Type[] specificTypes = new[] { typeof(IpAddressNetworkV4), typeof(IpAddressNetworkV6) };
+        SignaturesBuilder ipTypes = SignaturesBuilder.Types<IpAddressV4, IpAddressV6>()
+            .MustHaveComparer()
+            .MustHaveEquality()
+            .MustHaveParseMethods()
+            .MustHaveToStringMethods()
+            .MustHaveProperty("Min", type => type, hasSet: false, isInstance: false)
+            .MustHaveProperty("Max", type => type, hasSet: false, isInstance: false)
+            .MustHave("instance Boolean IsContainedIn(T1)", GetNetworkType)
+            .MustHave("static System.Net.IPAddress op_Explicit(TSelf)")
+            .MustHave("static TSelf op_BitwiseAnd(TSelf, TSelf)")
+            .MustHave("static TSelf op_BitwiseOr(TSelf, TSelf)");
 
-        object[] Make<T>(string signature) => new object[] { typeof(T), signature };
+        SignaturesBuilder networkTypes = SignaturesBuilder.Types<IpAddressNetworkV4, IpAddressNetworkV6>()
+            .MustHaveComparer()
+            .MustHaveEquality()
+            .MustHaveParseMethods()
+            .MustHaveToStringMethods()
+            .MustHaveProperty<byte>("Mask", hasSet: false)
+            .MustHave("instance Boolean Contains(TSelf)")
+            .MustHave("instance Boolean Contains(T1)", GetAddressType)
+            .MustHave("instance Boolean ContainsOrEqual(TSelf)")
+            .MustHave("instance Boolean ContainsOrEqual(T1)", GetAddressType)
+            .MustHave("static TSelf MakeSupernet(System.Collections.Generic.IEnumerable`1[TSelf])")
+            .MustHave("static TSelf MakeSupernet(System.Collections.Generic.IEnumerable`1[T1])", GetAddressType)
+            .MustHave("static TSelf op_Implicit(T1)", GetAddressType)
+            .MustHaveProperty("NetworkAddress", GetAddressType, hasSet: false)
+            .MustHaveProperty("NetworkWildcardMask", GetAddressType, hasSet: false)
+            .MustHaveProperty("NetworkMask", GetAddressType, hasSet: false);
 
-        IEnumerable<object[]> MakeAll(string signature) => new[] { Make<IpAddressNetworkV4>(signature), Make<IpAddressNetworkV6>(signature), Make<IpAddressNetwork>(signature) };
-        IEnumerable<object[]> MakeWithT<T>(string signature, Type[] tTypes) => tTypes.Select(s => tReplacer.Replace(signature, s.FullName)).Select(Make<T>);
+        SignaturesBuilder networkV4Special = SignaturesBuilder.Types<IpAddressNetworkV4>()
+            .MustHaveProperty<uint>("SubnetSize", hasSet: false)
+            .MustHaveProperty<uint>("SubnetHostsSize", hasSet: false)
+            .MustHaveProperty("BroadcastAddress", GetAddressType, hasSet: false);
 
-        return
-            Enumerable.Empty<object[]>()
-                // .NET Stuff
-                .Concat(MakeAll("instance System.String ToString()"))
-                // Generic equality
-                .Concat(MakeAll("instance Int32 CompareTo(System.Object)"))
-                .Concat(MakeAll("instance Int32 CompareTo(T)"))
-                .Concat(MakeAll("instance Boolean Equals(T)"))
-                .Concat(MakeAll("instance Boolean Equals(System.Object)"))
-                // All address ranges have a mask
-                .Concat(MakeAll("instance Byte get_Mask()"))
-                // Set methods
-                .Concat(MakeAll("instance Boolean Contains(T)"))
-                .Concat(MakeWithT<IpAddressNetwork>("instance Boolean Contains(T)", specificTypes))
-                .Concat(MakeAll("instance Boolean ContainsOrEqual(T)"))
-                .Concat(MakeWithT<IpAddressNetwork>("instance Boolean ContainsOrEqual(T)", specificTypes))
-                .Concat(MakeAll("instance Boolean IsContainedIn(T)"))
-                .Concat(MakeWithT<IpAddressNetwork>("instance Boolean IsContainedIn(T)", specificTypes))
-                .Concat(MakeAll("instance Boolean IsContainedInOrEqual(T)"))
-                .Concat(MakeWithT<IpAddressNetwork>("instance Boolean IsContainedInOrEqual(T)", specificTypes))
-                .Concat(MakeAll("static T MakeSupernet(System.Collections.Generic.IEnumerable`1[T])"))
-                .Concat(MakeAll("static T MakeSupernet(T[])"))
-                // Utilities to convert to .NET
-                .Concat(MakeAll("instance System.Net.IPAddress get_Address()"))
-                .Concat(MakeAll("instance System.Net.IPAddress get_EndAddress()"))
-                // Conversions
-                .Concat(MakeAll("static Boolean TryParse(System.ReadOnlySpan`1[System.Char], T ByRef)"))
-                .Concat(MakeAll("static T Parse(System.ReadOnlySpan`1[System.Char])"))
-                .Concat(MakeAll("static T op_Explicit(System.String)"))
-                .Concat(MakeAll("static T op_Explicit(System.ReadOnlySpan`1[System.Char])"))
-                .Concat(MakeAll("static T op_Implicit(System.Net.IPAddress)"))
-                .Concat(MakeAll("static System.Net.IPAddress op_Explicit(T)"))
-                .Concat(MakeAll("instance Void AddressToBytes(System.Span`1[System.Byte])"))
-                .Concat(MakeAll("instance Void AddressToBytes(Byte[], Int32)"))
-                .Concat(MakeAll("instance Byte[] AddressToBytes()"))
-                // Operators methods
-                .Concat(MakeAll("static Boolean op_Equality(T, T)"))
-                .Concat(MakeAll("static Boolean op_Inequality(T, T)"))
-                .Concat(MakeAll("static Boolean op_LessThan(T, T)"))
-                .Concat(MakeAll("static Boolean op_LessThanOrEqual(T, T)"))
-                .Concat(MakeAll("static Boolean op_GreaterThan(T, T)"))
-                .Concat(MakeAll("static Boolean op_GreaterThanOrEqual(T, T)"))
-                // IpAddressRange specific
-                .Append(Make<IpAddressNetwork>("static T op_Implicit(MBW.Utilities.IPAddresses.IpAddressNetworkV4)"))
-                .Append(Make<IpAddressNetwork>("static T op_Implicit(MBW.Utilities.IPAddresses.IpAddressNetworkV6)"));
+        SignaturesBuilder networkV6Special = SignaturesBuilder.Types<IpAddressNetworkV6>()
+            .MustHaveProperty<BigInteger>("SubnetSize", hasSet: false)
+            .MustHaveProperty("EndAddress", GetAddressType, hasSet: false);
+
+        return ipTypes.GetDesiredSignatures()
+            .Concat(networkTypes.GetDesiredSignatures())
+            .Concat(networkV4Special.GetDesiredSignatures())
+            .Concat(networkV6Special.GetDesiredSignatures())
+            .Select(s => new object[] { s.signature, s.type });
     }
 
     /// <summary>
@@ -97,17 +93,16 @@ public class ApiSurfaceStandardizationTests
     /// </summary>
     [Theory]
     [MemberData(nameof(GetMethodSignatures))]
-    public void MustHaveMethod2(Type type, string signature)
+    public void ApiSurfaceTest(string signature, Type type)
     {
         // Note: Do not use Should().Contain(), it produces very long and useless assertions
-        bool res = _types[type].Contains(signature);
+        bool res = _store.HasMethod(type, signature);
 
         if (!res)
         {
-            Fastenshtein.Levenshtein lev = new Fastenshtein.Levenshtein(signature);
-            var closest = _types[type].MinBy(s => lev.DistanceFrom(s));
-            
-            res.Should().BeTrue($"Type '{type.Name}'\n" +
+            string closest = _store.GetClosestMethod(type, signature);
+
+            Assert.False(true, $"Type '{type.Name}'\n" +
                 $"  Should contain '{signature}'\n" +
                 $"  Closest:       '{closest}'");
         }

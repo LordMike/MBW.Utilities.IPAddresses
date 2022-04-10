@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses;
@@ -18,10 +17,20 @@ public partial struct IpAddressNetworkV4
     public bool ContainsOrEqual(IpAddressNetworkV4 other)
     {
         // Ensure the network part of both this and other are the same
-        uint thisNetwork = _address;
-        uint otherNetwork = other._address & NetworkMask;
+        uint thisNetwork = _networkAddress.AddressUint;
+        uint otherNetwork = other.NetworkAddress.AddressUint & NetworkMask.AddressUint;
 
         return thisNetwork == otherNetwork;
+    }
+
+    public bool Contains(IpAddressV4 other)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool ContainsOrEqual(IpAddressV4 other)
+    {
+        throw new NotImplementedException();
     }
 
     public bool IsContainedIn(IpAddressNetworkV4 other)
@@ -47,9 +56,9 @@ public partial struct IpAddressNetworkV4
 
         foreach (IpAddressNetworkV4 range in others)
         {
-            final &= range._address;
+            final &= range._networkAddress.AddressUint;
 
-            byte lowestCommon = BitUtilities.FindCommonPrefixSize(final, range._address);
+            byte lowestCommon = BitUtilities.FindCommonPrefixSize(final, range._networkAddress.AddressUint);
             shortestMask = Math.Min(shortestMask, lowestCommon);
 
             hadAny = true;
@@ -61,44 +70,14 @@ public partial struct IpAddressNetworkV4
         return new IpAddressNetworkV4(final, shortestMask);
     }
 
-    public override string ToString()
+    public static IpAddressNetworkV4 MakeSupernet(params IpAddressV4[] others)
     {
-        return ToString(false);
+        return MakeSupernet((IEnumerable<IpAddressV4>)others);
     }
 
-    public string ToString(bool forceCidr)
+    public static IpAddressNetworkV4 MakeSupernet(IEnumerable<IpAddressV4> others)
     {
-        StringBuilder sb = new StringBuilder();
-
-        sb.Append(Address);
-
-        if (forceCidr || _mask != 32)
-            sb.Append("/").Append(_mask.ToString());
-
-        return sb.ToString();
-    }
-
-    public string ToPrefixString()
-    {
-        if (_mask <= 8 && (_address & 0xFFFFFF) == 0)
-        {
-            // Return 1 octet
-            return (_address >> 24) + "/" + _mask;
-        }
-
-        if (_mask <= 16 && (_address & 0xFFFF) == 0)
-        {
-            // Return 2 octets
-            return (_address >> 24) + "." + ((_address >> 16) & 0xFF) + "/" + _mask;
-        }
-        if (_mask <= 24 && (_address & 0xFF) == 0)
-        {
-            // Return 3 octets
-            return (_address >> 24) + "." + ((_address >> 16) & 0xFF) + "." + ((_address >> 8) & 0xFF) + "/" + _mask;
-
-        }
-
-        return ToString(false);
+        throw new NotImplementedException();
     }
 
     public void AddressToBytes(Span<byte> bytes)
@@ -106,10 +85,11 @@ public partial struct IpAddressNetworkV4
         if (bytes.Length < 4)
             throw new ArgumentOutOfRangeException(nameof(bytes));
 
-        bytes[0] = (byte)((_address >> 24) & 0xFF);
-        bytes[1] = (byte)((_address >> 16) & 0xFF);
-        bytes[2] = (byte)((_address >> 8) & 0xFF);
-        bytes[3] = (byte)(_address & 0xFF);
+        uint asUint = _networkAddress.AddressUint;
+        bytes[0] = (byte)((asUint >> 24) & 0xFF);
+        bytes[1] = (byte)((asUint >> 16) & 0xFF);
+        bytes[2] = (byte)((asUint >> 8) & 0xFF);
+        bytes[3] = (byte)(asUint & 0xFF);
     }
 
     public byte[] AddressToBytes()
