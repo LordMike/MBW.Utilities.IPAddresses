@@ -27,7 +27,7 @@ public partial struct IpAddressNetworkV4
     public bool Contains(IpAddressV4 other)
     {
         IpAddressV4 mask = NetworkMask;
-        return (mask & other) == mask;
+        return (mask & other) == NetworkAddress;
     }
 
     public bool IsContainedIn(IpAddressNetworkV4 other)

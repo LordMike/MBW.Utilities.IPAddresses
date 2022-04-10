@@ -54,7 +54,7 @@ public partial struct IpAddressNetworkV6
     public bool Contains(IpAddressV6 other)
     {
         IpAddressV6 mask = NetworkMask;
-        return (mask & other) == mask;
+        return (mask & other) == NetworkAddress;
     }
 
     public bool IsContainedIn(IpAddressNetworkV6 other)
