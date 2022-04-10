@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
 using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses;
@@ -15,16 +13,16 @@ public partial struct IpAddressNetworkV6
 
         if (_mask >= 64)
         {
-            ulong otherMaskedToThisNetworkLow = other._addressLow & (uint.MaxValue << _mask);
-            bool highMatches = other._addressHigh == _addressHigh;
-            bool isInNetwork = (otherMaskedToThisNetworkLow & _addressLow) == otherMaskedToThisNetworkLow;
+            ulong otherMaskedToThisNetworkLow = other.NetworkAddress.AddressLow & (uint.MaxValue << _mask);
+            bool highMatches = other.NetworkAddress.AddressHigh == _networkAddress.AddressHigh;
+            bool isInNetwork = (otherMaskedToThisNetworkLow & _networkAddress.AddressLow) == otherMaskedToThisNetworkLow;
 
             return canBeInNetwork && highMatches && isInNetwork;
         }
         else
         {
-            ulong otherMaskedToThisNetworkHigh = other._addressHigh & (uint.MaxValue << _mask);
-            bool isInNetwork = (otherMaskedToThisNetworkHigh & _addressHigh) == otherMaskedToThisNetworkHigh;
+            ulong otherMaskedToThisNetworkHigh = other.NetworkAddress.AddressHigh & (uint.MaxValue << _mask);
+            bool isInNetwork = (otherMaskedToThisNetworkHigh & _networkAddress.AddressHigh) == otherMaskedToThisNetworkHigh;
 
             return canBeInNetwork && isInNetwork;
         }
@@ -37,19 +35,29 @@ public partial struct IpAddressNetworkV6
 
         if (_mask >= 64)
         {
-            ulong otherMaskedToThisNetworkLow = other._addressLow & (uint.MaxValue << _mask);
-            bool highMatches = other._addressHigh == _addressHigh;
-            bool isInNetwork = (otherMaskedToThisNetworkLow & _addressLow) == otherMaskedToThisNetworkLow;
+            ulong otherMaskedToThisNetworkLow = other.NetworkAddress.AddressLow & (uint.MaxValue << _mask);
+            bool highMatches = other.NetworkAddress.AddressHigh == _networkAddress.AddressHigh;
+            bool isInNetwork = (otherMaskedToThisNetworkLow & _networkAddress.AddressLow) == otherMaskedToThisNetworkLow;
 
             return canBeInNetwork && highMatches && isInNetwork;
         }
         else
         {
-            ulong otherMaskedToThisNetworkHigh = other._addressHigh & (uint.MaxValue << _mask);
-            bool isInNetwork = (otherMaskedToThisNetworkHigh & _addressHigh) == otherMaskedToThisNetworkHigh;
+            ulong otherMaskedToThisNetworkHigh = other.NetworkAddress.AddressHigh & (uint.MaxValue << _mask);
+            bool isInNetwork = (otherMaskedToThisNetworkHigh & _networkAddress.AddressHigh) == otherMaskedToThisNetworkHigh;
 
             return canBeInNetwork && isInNetwork;
         }
+    }
+
+    public bool Contains(IpAddressV6 other)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool ContainsOrEqual(IpAddressV6 other)
+    {
+        throw new NotImplementedException();
     }
 
     public bool IsContainedIn(IpAddressNetworkV6 other)
@@ -76,13 +84,13 @@ public partial struct IpAddressNetworkV6
 
         foreach (IpAddressNetworkV6 range in others)
         {
-            finalHigh &= range._addressLow;
-            finalLow &= range._addressHigh;
+            finalHigh &= range.NetworkAddress.AddressHigh;
+            finalLow &= range.NetworkAddress.AddressLow;
 
-            byte highMask = BitUtilities.FindCommonPrefixSize(finalHigh, range._addressHigh);
+            byte highMask = BitUtilities.FindCommonPrefixSize(finalHigh, range.NetworkAddress.AddressHigh);
             if (highMask == 64)
             {
-                byte lowMask = (byte)(64 + BitUtilities.FindCommonPrefixSize(finalLow, range._addressLow));
+                byte lowMask = (byte)(64 + BitUtilities.FindCommonPrefixSize(finalLow, range.NetworkAddress.AddressLow));
                 shortestMask = Math.Min(shortestMask, lowMask);
             }
             else
@@ -99,72 +107,14 @@ public partial struct IpAddressNetworkV6
         return new IpAddressNetworkV6(finalHigh, finalLow, shortestMask);
     }
 
-    public override string ToString()
+    public static IpAddressNetworkV6 MakeSupernet(params IpAddressV6[] others)
     {
-        return ToString(false);
+        return MakeSupernet((IEnumerable<IpAddressV6>)others);
     }
 
-    public string ToString(bool forceCidr)
+    public static IpAddressNetworkV6 MakeSupernet(IEnumerable<IpAddressV6> others)
     {
-        StringBuilder sb = new StringBuilder();
-
-        sb.Append(Address);
-
-        if (forceCidr || _mask != 128)
-            sb.Append("/").Append(_mask.ToString());
-
-        return sb.ToString();
-    }
-
-    public string ToDecimalDotted(bool forceCidr = false)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.Append((_addressHigh >> 56).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 48) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 40) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 32) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 24) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 16) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 8) & 0xFF).ToString()).Append(".");
-        sb.Append((_addressHigh & 0xFF).ToString()).Append(".");
-
-        sb.Append((_addressLow >> 56).ToString()).Append(".");
-        sb.Append(((_addressLow >> 48) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 40) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 32) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 24) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 16) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 8) & 0xFF).ToString()).Append(".");
-        sb.Append((_addressLow & 0xFF).ToString());
-
-        if (forceCidr || _mask != 128)
-            sb.Append("/").Append(_mask.ToString());
-
-        return sb.ToString();
-    }
-
-    public string ToPrefixString()
-    {
-        //if (_mask <= 8 && (_address & 0xFFFFFF) == 0)
-        //{
-        //	// Return 1 octet
-        //	return (_address >> 24) + "/" + _mask;
-        //}
-
-        //if (_mask <= 16 && (_address & 0xFFFF) == 0)
-        //{
-        //	// Return 2 octets
-        //	return (_address >> 24) + "." + ((_address >> 16) & 0xFF) + "/" + _mask;
-        //}
-        //if (_mask <= 24 && (_address & 0xFF) == 0)
-        //{
-        //	// Return 3 octets
-        //	return (_address >> 24) + "." + ((_address >> 16) & 0xFF) + "." + ((_address >> 8) & 0xFF) + "/" + _mask;
-
-        //}
-
-        return ToString();
+        throw new NotImplementedException();
     }
 
     public void AddressToBytes(Span<byte> bytes)
@@ -172,22 +122,25 @@ public partial struct IpAddressNetworkV6
         if (bytes.Length < 16)
             throw new ArgumentOutOfRangeException(nameof(bytes));
 
-        bytes[0] = (byte)((_addressHigh >> 56) & 0xFF);
-        bytes[1] = (byte)((_addressHigh >> 48) & 0xFF);
-        bytes[2] = (byte)((_addressHigh >> 40) & 0xFF);
-        bytes[3] = (byte)((_addressHigh >> 32) & 0xFF);
-        bytes[4] = (byte)((_addressHigh >> 24) & 0xFF);
-        bytes[5] = (byte)((_addressHigh >> 16) & 0xFF);
-        bytes[6] = (byte)((_addressHigh >> 8) & 0xFF);
-        bytes[7] = (byte)(_addressHigh & 0xFF);
-        bytes[8] = (byte)((_addressLow >> 56) & 0xFF);
-        bytes[9] = (byte)((_addressLow >> 48) & 0xFF);
-        bytes[10] = (byte)((_addressLow >> 40) & 0xFF);
-        bytes[11] = (byte)((_addressLow >> 32) & 0xFF);
-        bytes[12] = (byte)((_addressLow >> 24) & 0xFF);
-        bytes[13] = (byte)((_addressLow >> 16) & 0xFF);
-        bytes[14] = (byte)((_addressLow >> 8) & 0xFF);
-        bytes[15] = (byte)(_addressLow & 0xFF);
+        ulong high = _networkAddress.AddressHigh;
+        ulong low = _networkAddress.AddressLow;
+
+        bytes[0] = (byte)((high >> 56) & 0xFF);
+        bytes[1] = (byte)((high >> 48) & 0xFF);
+        bytes[2] = (byte)((high >> 40) & 0xFF);
+        bytes[3] = (byte)((high >> 32) & 0xFF);
+        bytes[4] = (byte)((high >> 24) & 0xFF);
+        bytes[5] = (byte)((high >> 16) & 0xFF);
+        bytes[6] = (byte)((high >> 8) & 0xFF);
+        bytes[7] = (byte)(high & 0xFF);
+        bytes[8] = (byte)((low >> 56) & 0xFF);
+        bytes[9] = (byte)((low >> 48) & 0xFF);
+        bytes[10] = (byte)((low >> 40) & 0xFF);
+        bytes[11] = (byte)((low >> 32) & 0xFF);
+        bytes[12] = (byte)((low >> 24) & 0xFF);
+        bytes[13] = (byte)((low >> 16) & 0xFF);
+        bytes[14] = (byte)((low >> 8) & 0xFF);
+        bytes[15] = (byte)(low & 0xFF);
     }
 
     public byte[] AddressToBytes()

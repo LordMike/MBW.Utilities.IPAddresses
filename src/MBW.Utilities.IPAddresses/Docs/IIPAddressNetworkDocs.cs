@@ -14,4 +14,11 @@ internal interface IIPAddressNetworkDocs<TType>
     /// Determines if this network instance completely contains or is equal to the specified network.
     /// </summary>
     bool ContainsOrEqual(TType other);
+
+
+}
+
+internal interface IIPAddress<TType>
+{
+
 }

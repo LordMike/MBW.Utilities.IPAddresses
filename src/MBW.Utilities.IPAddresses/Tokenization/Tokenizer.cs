@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace MBW.Utilities.IPAddresses.Tokenization;
 
 internal record struct ParsedToken(TokenType Type, ushort Value);
 
+[DebuggerDisplay("Value: {_value}")]
 internal ref struct Tokenizer
 {
     private ReadOnlySpan<char> _value;
@@ -16,6 +18,8 @@ internal ref struct Tokenizer
         _value = input;
         _temp = _value;
     }
+
+    public int Length => _value.Length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ParsedToken Interpret(ReadOnlySpan<char> input, bool forward, bool isHexadecimal, out int read)

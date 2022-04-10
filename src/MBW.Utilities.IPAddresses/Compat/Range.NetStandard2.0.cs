@@ -72,14 +72,14 @@ internal readonly struct Range : IEquatable<Range>
     public (int Offset, int Length) GetOffsetAndLength(int length)
     {
         int start;
-        var startIndex = Start;
+        Index startIndex = Start;
         if (startIndex.IsFromEnd)
             start = length - startIndex.Value;
         else
             start = startIndex.Value;
 
         int end;
-        var endIndex = End;
+        Index endIndex = End;
         if (endIndex.IsFromEnd)
             end = length - endIndex.Value;
         else

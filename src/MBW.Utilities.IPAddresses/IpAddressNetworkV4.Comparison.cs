@@ -14,7 +14,7 @@ public partial struct IpAddressNetworkV4 : IComparable, IComparable<IpAddressNet
 
     public int CompareTo(IpAddressNetworkV4 other)
     {
-        int res = _address.CompareTo(other._address);
+        int res = _networkAddress.CompareTo(other._networkAddress);
 
         if (res == 0)
             return _mask.CompareTo(other._mask);
@@ -24,7 +24,7 @@ public partial struct IpAddressNetworkV4 : IComparable, IComparable<IpAddressNet
 
     public bool Equals(IpAddressNetworkV4 other)
     {
-        return _mask == other._mask && _address == other._address;
+        return _mask == other._mask && _networkAddress == other._networkAddress;
     }
 
     public override bool Equals(object obj)
@@ -39,7 +39,7 @@ public partial struct IpAddressNetworkV4 : IComparable, IComparable<IpAddressNet
     {
         unchecked
         {
-            return _address.GetHashCode() ^ _mask * 397;
+            return _networkAddress.GetHashCode() ^ _mask * 397;
         }
     }
 

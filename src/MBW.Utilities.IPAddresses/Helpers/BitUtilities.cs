@@ -1,4 +1,6 @@
-﻿namespace MBW.Utilities.IPAddresses.Helpers;
+﻿using System.Runtime.CompilerServices;
+
+namespace MBW.Utilities.IPAddresses.Helpers;
 
 internal static class BitUtilities
 {
@@ -153,5 +155,23 @@ internal static class BitUtilities
                ((value & 0x0000000000FF0000) << 24) |
                ((value & 0x000000000000FF00) << 40) |
                ((value & 0x00000000000000FF) << 56);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SetTuplet(ref ulong low, ref ulong high, byte index, ulong newValue)
+    {
+        if (index < 4)
+            high |= newValue << ((3 - index) * 16);
+        else
+            low |= newValue << ((7 - index) * 16);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SetByte(ref ulong low, ref ulong high, byte index, ulong newValue)
+    {
+        if (index < 8)
+            high |= newValue << ((7 - index) * 8);
+        else
+            low |= newValue << ((15 - index) * 8);
     }
 }
