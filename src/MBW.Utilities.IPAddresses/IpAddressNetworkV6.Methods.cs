@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses;
@@ -52,12 +53,8 @@ public partial struct IpAddressNetworkV6
 
     public bool Contains(IpAddressV6 other)
     {
-        throw new NotImplementedException();
-    }
-
-    public bool ContainsOrEqual(IpAddressV6 other)
-    {
-        throw new NotImplementedException();
+        IpAddressV6 mask = NetworkMask;
+        return (mask & other) == mask;
     }
 
     public bool IsContainedIn(IpAddressNetworkV6 other)
@@ -68,11 +65,6 @@ public partial struct IpAddressNetworkV6
     public bool IsContainedInOrEqual(IpAddressNetworkV6 other)
     {
         return other.ContainsOrEqual(this);
-    }
-
-    public static IpAddressNetworkV6 MakeSupernet(params IpAddressNetworkV6[] others)
-    {
-        return MakeSupernet((IEnumerable<IpAddressNetworkV6>)others);
     }
 
     public static IpAddressNetworkV6 MakeSupernet(IEnumerable<IpAddressNetworkV6> others)
@@ -107,15 +99,9 @@ public partial struct IpAddressNetworkV6
         return new IpAddressNetworkV6(finalHigh, finalLow, shortestMask);
     }
 
-    public static IpAddressNetworkV6 MakeSupernet(params IpAddressV6[] others)
-    {
-        return MakeSupernet((IEnumerable<IpAddressV6>)others);
-    }
-
-    public static IpAddressNetworkV6 MakeSupernet(IEnumerable<IpAddressV6> others)
-    {
-        throw new NotImplementedException();
-    }
+    public static IpAddressNetworkV6 MakeSupernet(params IpAddressNetworkV6[] others) => MakeSupernet((IEnumerable<IpAddressNetworkV6>)others);
+    public static IpAddressNetworkV6 MakeSupernet(params IpAddressV6[] others) => MakeSupernet((IEnumerable<IpAddressV6>)others);
+    public static IpAddressNetworkV6 MakeSupernet(IEnumerable<IpAddressV6> others) => MakeSupernet(others.Cast<IpAddressNetworkV6>());
 
     public void AddressToBytes(Span<byte> bytes)
     {

@@ -11,23 +11,27 @@ namespace MBW.Utilities.IPAddresses;
 /// </summary>
 public partial struct IpAddressNetworkV6
 {
-    public IpAddressNetworkV6(IPAddress address, byte mask = 128)
+    public IpAddressNetworkV6(IPAddress address, byte mask)
         : this(address.GetAddressBytes(), mask)
     {
         if (address.AddressFamily != AddressFamily.InterNetworkV6)
             throw new ArgumentException();
     }
 
-    private IpAddressNetworkV6(byte[] address, byte mask = 128)
+    public IpAddressNetworkV6(IpAddressV6 address, byte mask)
+        : this(address.AddressHigh, address.AddressLow, mask)
+    {
+    }
+
+    private IpAddressNetworkV6(byte[] address, byte mask)
         : this(BitUtilities.Reverse(BitConverter.ToUInt64(address, 0)), BitUtilities.Reverse(BitConverter.ToUInt64(address, 8)), mask)
     {
         if (address.Length != 16)
             throw new ArgumentException();
     }
 
-    public IpAddressNetworkV6(ulong addressHigh, ulong addressLow, byte mask = 128)
+    public IpAddressNetworkV6(ulong addressHigh, ulong addressLow, byte mask)
     {
-
         _mask = mask;
         if (mask == 0)
         {
