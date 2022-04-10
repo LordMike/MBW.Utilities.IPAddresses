@@ -14,16 +14,17 @@ public partial struct IpAddressV4
 
     public void ToString(StringBuilder sb)
     {
-        throw new NotImplementedException();
+        sb.Append(ToString());
     }
 
     public void ToString(TextWriter tw)
     {
-        throw new NotImplementedException();
+        tw.Write(ToString());
     }
 
     public void ToString(Span<char> span)
     {
-        throw new NotImplementedException();
+        ReadOnlySpan<char> str = ToString().AsSpan();
+        str.CopyTo(span);
     }
 }

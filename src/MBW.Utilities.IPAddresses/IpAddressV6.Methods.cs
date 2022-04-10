@@ -4,10 +4,7 @@ namespace MBW.Utilities.IPAddresses;
 
 public partial struct IpAddressV6
 {
-    public bool IsContainedIn(IpAddressNetworkV6 network)
-    {
-        throw new NotImplementedException();
-    }
+    public bool IsContainedIn(IpAddressNetworkV6 network) => network.Contains(this);
 
     public void AddressToBytes(Span<byte> bytes)
     {
