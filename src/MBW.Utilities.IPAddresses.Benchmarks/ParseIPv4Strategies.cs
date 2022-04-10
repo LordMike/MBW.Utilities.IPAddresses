@@ -1,11 +1,13 @@
-﻿using System;
+﻿using BenchmarkDotNet.Attributes;
+using System;
 using System.Net;
 using System.Text.RegularExpressions;
-using BenchmarkDotNet.Attributes;
 
 namespace MBW.Utilities.IPAddresses.Benchmarks;
 
 [MemoryDiagnoser]
+//[SimpleJob(runtimeMoniker: RuntimeMoniker.Net50)]
+//[SimpleJob(runtimeMoniker: RuntimeMoniker.Net60)]
 public class ParseIPv4Strategies
 {
     private readonly Regex _ipRegex = new Regex("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}↵(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -22,7 +24,7 @@ public class ParseIPv4Strategies
         return IpAddressNetworkV4.ParseUnstable("192.168.10.1");
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public IPAddress NativeIPv4()
     {
         return IPAddress.Parse("192.168.10.1");

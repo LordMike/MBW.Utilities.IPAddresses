@@ -1,9 +1,12 @@
-﻿using System;
+﻿using BenchmarkDotNet.Attributes;
+using System;
 using System.Net;
-using BenchmarkDotNet.Attributes;
 
 namespace MBW.Utilities.IPAddresses.Benchmarks;
 
+[MemoryDiagnoser]
+//[SimpleJob(runtimeMoniker: RuntimeMoniker.Net50)]
+//[SimpleJob(runtimeMoniker: RuntimeMoniker.Net60)]
 public class ParseIPv6Strategies
 {
     [Benchmark]
@@ -18,7 +21,7 @@ public class ParseIPv6Strategies
         return IpAddressNetworkV6.ParseUnstable("2001:0dff:44ff:0:1744::ffff/64");
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public IPAddress NativeIPv6()
     {
         return IPAddress.Parse("2001:0dff:44ff:0:1744::ffff");
