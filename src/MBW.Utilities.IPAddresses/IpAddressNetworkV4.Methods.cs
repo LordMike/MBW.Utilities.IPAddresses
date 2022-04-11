@@ -17,11 +17,11 @@ public partial struct IpAddressNetworkV4
     /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV4}.ContainsOrEqual(IpAddressNetworkV4)"/>
     public bool ContainsOrEqual(IpAddressNetworkV4 other)
     {
-        // Ensure the network part of both this and other are the same
-        uint thisNetwork = _networkAddress.AddressUint;
-        uint otherNetwork = other.NetworkAddress.AddressUint & NetworkMask.AddressUint;
+        if (other.Mask < _mask)
+            return false;
 
-        return thisNetwork == otherNetwork;
+        IpAddressV4 sharedNetwork = NetworkMask & other.NetworkAddress;
+        return sharedNetwork == _networkAddress;
     }
 
     public bool Contains(IpAddressV4 other)

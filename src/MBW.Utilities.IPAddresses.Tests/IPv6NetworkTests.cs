@@ -76,6 +76,20 @@ public class IPv6NetworkTests
         net.SubnetSize.Should().Be(bigExpectedSubnetSize);
     }
 
+    [Theory]
+    [InlineData("fe00::/10", "fe00:4444::7ef0", true)]
+    [InlineData("fe00::/10", "fe80:1224::7ef0", false)]
+    public void ContainsTest(string network, string test, bool shouldContain)
+    {
+        IpAddressNetworkV6 net = (IpAddressNetworkV6)network;
+        IpAddressV6 ip = (IpAddressV6)test;
+
+        if (shouldContain)
+            net.Contains(ip).Should().BeTrue();
+        else
+            net.Contains(ip).Should().BeFalse();
+    }
+
     [Fact]
     public void FullPropertyTest()
     {

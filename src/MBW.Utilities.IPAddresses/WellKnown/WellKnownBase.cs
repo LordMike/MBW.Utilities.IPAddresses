@@ -1,11 +1,13 @@
-﻿using System;
+﻿using MBW.Utilities.IPAddresses.DataStructures;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MBW.Utilities.IPAddresses.WellKnown;
 
-public abstract class WellKnownBase<TAddress, TNetwork, TEnum> where TEnum : Enum where TAddress : struct where TNetwork : struct
+public abstract class WellKnownBase<TAddress, TNetwork, TEnum, TIPSet> where TEnum : Enum where TAddress : struct where TNetwork : struct where TIPSet : IPSet<TNetwork, TEnum>, new()
 {
-    private readonly List<(TEnum type, TNetwork network)> _types = new();
+    private readonly TIPSet _types = new();
 
     internal protected WellKnownBase()
     {
@@ -16,39 +18,26 @@ public abstract class WellKnownBase<TAddress, TNetwork, TEnum> where TEnum : Enu
 
     protected void Add(TEnum type, TNetwork network)
     {
-        _types.Add((type, network));
+        _types.Add(network, type);
     }
 
-    public TEnum GetType(TAddress address)
-    {
-        foreach ((TEnum type, TNetwork network) entry in _types)
-        {
-            if (Contains(entry.network, address))
-                return entry.type;
-        }
-
-        return default;
-    }
+    public abstract TEnum GetType(TAddress address);
 
     public TEnum GetType(TNetwork network)
     {
-        foreach ((TEnum type, TNetwork network) entry in _types)
-        {
-            if (Contains(entry.network, network))
-                return entry.type;
-        }
+        if (!_types.TryGet(network, out _, out var type))
+            return default;
 
-        return default;
+        return type;
     }
 
     public IEnumerable<TNetwork> GetNetworks(TEnum type)
     {
-        foreach ((TEnum type, TNetwork network) entry in _types)
-        {
-            if (Equals(entry.type, type))
-                yield return entry.network;
-        }
+        return _types
+            .GetValues()
+            .Where(s => Equals(s.value, type))
+            .Select(s => s.network);
     }
 
-    public IEnumerable<(TEnum type, TNetwork network)> GetWellKnownNetworks() => _types;
+    public IEnumerable<(TEnum type, TNetwork network)> GetWellKnownNetworks() => _types.GetValues().Select(s => (s.value, s.network));
 }

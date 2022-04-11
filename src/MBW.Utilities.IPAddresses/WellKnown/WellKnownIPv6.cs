@@ -1,9 +1,11 @@
-﻿namespace MBW.Utilities.IPAddresses.WellKnown;
+﻿using MBW.Utilities.IPAddresses.DataStructures;
+
+namespace MBW.Utilities.IPAddresses.WellKnown;
 
 /// <summary>
 /// Well known IPv6 networks, see https://en.wikipedia.org/wiki/Reserved_IP_addresses#IPv6 for more details
 /// </summary>
-public sealed class WellKnownIPv6 : WellKnownBase<IpAddressV6, IpAddressNetworkV6, WellKnownIPv6Type>
+public sealed class WellKnownIPv6 : WellKnownBase<IpAddressV6, IpAddressNetworkV6, WellKnownIPv6Type, IPv6Set<WellKnownIPv6Type>>
 {
     public static WellKnownIPv6 Instance { get; } = new();
 
@@ -39,4 +41,5 @@ public sealed class WellKnownIPv6 : WellKnownBase<IpAddressV6, IpAddressNetworkV
 
     protected override bool Contains(IpAddressNetworkV6 network, IpAddressNetworkV6 candidate) => network.Contains(candidate);
     protected override bool Contains(IpAddressNetworkV6 network, IpAddressV6 candidate) => network.Contains(candidate);
+    public override WellKnownIPv6Type GetType(IpAddressV6 address) => GetType((IpAddressNetworkV6)address);
 }

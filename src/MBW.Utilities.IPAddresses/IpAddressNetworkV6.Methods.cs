@@ -32,23 +32,11 @@ public partial struct IpAddressNetworkV6
     /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV6}.ContainsOrEqual(IpAddressNetworkV6)"/>
     public bool ContainsOrEqual(IpAddressNetworkV6 other)
     {
-        bool canBeInNetwork = _mask <= other._mask;
+        if (other.Mask < _mask)
+            return false;
 
-        if (_mask >= 64)
-        {
-            ulong otherMaskedToThisNetworkLow = other.NetworkAddress.AddressLow & (uint.MaxValue << _mask);
-            bool highMatches = other.NetworkAddress.AddressHigh == _networkAddress.AddressHigh;
-            bool isInNetwork = (otherMaskedToThisNetworkLow & _networkAddress.AddressLow) == otherMaskedToThisNetworkLow;
-
-            return canBeInNetwork && highMatches && isInNetwork;
-        }
-        else
-        {
-            ulong otherMaskedToThisNetworkHigh = other.NetworkAddress.AddressHigh & (uint.MaxValue << _mask);
-            bool isInNetwork = (otherMaskedToThisNetworkHigh & _networkAddress.AddressHigh) == otherMaskedToThisNetworkHigh;
-
-            return canBeInNetwork && isInNetwork;
-        }
+        IpAddressV6 sharedNetwork = NetworkMask & other.NetworkAddress;
+        return sharedNetwork == _networkAddress;
     }
 
     public bool Contains(IpAddressV6 other)

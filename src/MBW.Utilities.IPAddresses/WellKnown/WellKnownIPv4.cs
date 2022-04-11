@@ -1,9 +1,11 @@
-﻿namespace MBW.Utilities.IPAddresses.WellKnown;
+﻿using MBW.Utilities.IPAddresses.DataStructures;
+
+namespace MBW.Utilities.IPAddresses.WellKnown;
 
 /// <summary>
 /// Well known IPv4 networks, see https://en.wikipedia.org/wiki/Reserved_IP_addresses#IPv4 for more details
 /// </summary>
-public sealed class WellKnownIPv4 : WellKnownBase<IpAddressV4, IpAddressNetworkV4, WellKnownIPv4Type>
+public sealed class WellKnownIPv4 : WellKnownBase<IpAddressV4, IpAddressNetworkV4, WellKnownIPv4Type, IPv4Set<WellKnownIPv4Type>>
 {
     public static WellKnownIPv4 Instance { get; } = new();
 
@@ -28,4 +30,6 @@ public sealed class WellKnownIPv4 : WellKnownBase<IpAddressV4, IpAddressNetworkV
 
     protected override bool Contains(IpAddressNetworkV4 network, IpAddressNetworkV4 candidate) => network.Contains(candidate);
     protected override bool Contains(IpAddressNetworkV4 network, IpAddressV4 candidate) => network.Contains(candidate);
+
+    public override WellKnownIPv4Type GetType(IpAddressV4 address) => GetType((IpAddressNetworkV4)address);
 }
