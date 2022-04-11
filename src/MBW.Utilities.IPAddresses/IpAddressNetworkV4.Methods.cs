@@ -93,4 +93,37 @@ public partial struct IpAddressNetworkV4
 
         AddressToBytes(bytes.AsSpan().Slice(offset, 4));
     }
+
+    public IEnumerable<IpAddressNetworkV4> Split(byte maskIncrement = 1)
+    {
+        int newMaskInt = _mask + maskIncrement;
+        if (newMaskInt <= _mask || newMaskInt > 32)
+            throw new ArgumentOutOfRangeException($"The increment ({maskIncrement}) must place the new mask between this networks mask ({_mask}) and 32", nameof(maskIncrement));
+
+        byte newMask = (byte)newMaskInt;
+
+        // Determine last network
+        // We use this to determine when to stop producing networks. Other approaches may lead to infinite loops (when running unchecked arithmetics)
+        uint networksBitmask = uint.MaxValue >> (32 - maskIncrement);
+        IpAddressV4 lastNetwork = new IpAddressV4(_networkAddress.AddressUint | (networksBitmask << (32 - newMask)));
+
+        // Create increment value
+        uint incrementVal = 1U << (32 - newMask);
+        IpAddressV4 currentNet = _networkAddress;
+
+        // Ensure we can fail fast on the arguments
+        IEnumerable<IpAddressNetworkV4> Enumerate()
+        {
+            // Produce networks as long as we're within our current network
+            yield return new IpAddressNetworkV4(currentNet, newMask);
+
+            do
+            {
+                currentNet = new IpAddressV4(currentNet.AddressUint + incrementVal);
+                yield return new IpAddressNetworkV4(currentNet, newMask);
+            } while (currentNet != lastNetwork);
+        }
+
+        return Enumerate();
+    }
 }

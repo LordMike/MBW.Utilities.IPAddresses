@@ -63,6 +63,7 @@ public class ApiSurfaceStandardizationTests
             .MustHave("instance Boolean Contains(TSelf)")
             .MustHave("instance Boolean Contains(T1)", GetAddressType)
             .MustHave("instance Boolean ContainsOrEqual(TSelf)")
+            .MustHave("instance System.Collections.Generic.IEnumerable`1[TSelf] Split(Byte)")
             .MustHave("static TSelf MakeSupernet(System.Collections.Generic.IEnumerable`1[TSelf])")
             .MustHave("static TSelf MakeSupernet(System.Collections.Generic.IEnumerable`1[T1])", GetAddressType)
             .MustHave("static TSelf op_Implicit(T1)", GetAddressType)

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Numerics;
 using FluentAssertions;
@@ -102,5 +104,72 @@ public class IPv6NetworkTests
         net.NetworkMask.Should().Be((IpAddressV6)"ffff:ffff:ffff:ffff:ffff:ffff::");
         net.NetworkWildcardMask.Should().Be((IpAddressV6)"::ffff:ffff");
         net.SubnetSize.Should().Be(4294967296);
+    }
+
+    [Fact]
+    public void SplitTest()
+    {
+        // Check that Split fails fast on mask
+        IpAddressNetworkV6 net = (IpAddressNetworkV6)"2001:db8::8a2e:371:7334/96";
+        Assert.Throws<ArgumentOutOfRangeException>(() => net.Split(128));
+        Assert.Throws<ArgumentOutOfRangeException>(() => net.Split(33));
+        Assert.Throws<ArgumentOutOfRangeException>(() => net.Split(0));
+
+        // Generic split in the lower-end of the IPv6 struct
+        net = (IpAddressNetworkV6)"2001:db8::8a2e:371:7334/96";
+        List<IpAddressNetworkV6> splits = net.Split(2).ToList();
+        splits.Should().ContainInOrder(new IpAddressNetworkV6[]
+        {
+            (IpAddressNetworkV6)"2001:db8::8a2e:0000:0/98",
+            (IpAddressNetworkV6)"2001:db8::8a2e:4000:0/98",
+            (IpAddressNetworkV6)"2001:db8::8a2e:8000:0/98",
+            (IpAddressNetworkV6)"2001:db8::8a2e:c000:0/98"
+        });
+
+        // Generic split in the higher-end of the IPv6 struct
+        net = (IpAddressNetworkV6)"2001:db8::/48";
+        splits = net.Split(2).ToList();
+        splits.Should().ContainInOrder(new IpAddressNetworkV6[]
+        {
+            (IpAddressNetworkV6)"2001:0db8:0000:0000::/50",
+            (IpAddressNetworkV6)"2001:0db8:0000:4000::/50",
+            (IpAddressNetworkV6)"2001:0db8:0000:8000::/50",
+            (IpAddressNetworkV6)"2001:0db8:0000:c000::/50"
+        });
+
+        // Generic split across the two longs in the IPv6 struct
+        net = (IpAddressNetworkV6)"2001:db8:ff32:1234::/63";
+        splits = net.Split(2).ToList();
+        splits.Should().ContainInOrder(new IpAddressNetworkV6[]
+        {
+            (IpAddressNetworkV6)"2001:db8:ff32:1234:0000::/65",
+            (IpAddressNetworkV6)"2001:db8:ff32:1234:8000::/65",
+            (IpAddressNetworkV6)"2001:db8:ff32:1235:0000::/65",
+            (IpAddressNetworkV6)"2001:db8:ff32:1235:8000::/65"
+        });
+
+        // Major split from ::/0 to ::/128, to ensure it can work (we will _not_ enumerate it)
+        net = (IpAddressNetworkV6)"::/0";
+        splits = net.Split(128).Take(17).ToList();
+        splits.Should().ContainInOrder(new IpAddressNetworkV6[]
+        {
+            (IpAddressNetworkV6)"::0/128",
+            (IpAddressNetworkV6)"::1/128",
+            (IpAddressNetworkV6)"::2/128",
+            (IpAddressNetworkV6)"::3/128",
+            (IpAddressNetworkV6)"::4/128",
+            (IpAddressNetworkV6)"::5/128",
+            (IpAddressNetworkV6)"::6/128",
+            (IpAddressNetworkV6)"::7/128",
+            (IpAddressNetworkV6)"::8/128",
+            (IpAddressNetworkV6)"::9/128",
+            (IpAddressNetworkV6)"::A/128",
+            (IpAddressNetworkV6)"::B/128",
+            (IpAddressNetworkV6)"::C/128",
+            (IpAddressNetworkV6)"::D/128",
+            (IpAddressNetworkV6)"::E/128",
+            (IpAddressNetworkV6)"::F/128",
+            (IpAddressNetworkV6)"::10/128"
+        });
     }
 }

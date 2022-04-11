@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using FluentAssertions;
 using Xunit;
@@ -250,5 +252,49 @@ public class IPv4NetworkTests
         net.NetworkWildcardMask.Should().Be((IpAddressV4)"0.0.3.255");
         net.SubnetSize.Should().Be(1024);
         net.SubnetHostsSize.Should().Be(1022);
+    }
+
+    [Fact]
+    public void SplitTest()
+    {
+        // Check that Split fails fast on mask
+        IpAddressNetworkV4 net = (IpAddressNetworkV4)"192.168.1.0/24";
+        Assert.Throws<ArgumentOutOfRangeException>(() => net.Split(33));
+        Assert.Throws<ArgumentOutOfRangeException>(() => net.Split(9));
+        Assert.Throws<ArgumentOutOfRangeException>(() => net.Split(0));
+
+        // Generic split in the lower-end of the IPv4 struct
+        net = (IpAddressNetworkV4)"192.168.1.0/24";
+        List<IpAddressNetworkV4> splits = net.Split(2).ToList();
+        splits.Should().ContainInOrder(new IpAddressNetworkV4[]
+        {
+            (IpAddressNetworkV4)"192.168.1.0/26",
+            (IpAddressNetworkV4)"192.168.1.64/26",
+            (IpAddressNetworkV4)"192.168.1.128/26",
+            (IpAddressNetworkV4)"192.168.1.192/26"
+        });
+
+        // Generic split in the lower-end of the IPv6 struct
+        net = (IpAddressNetworkV4)"10.0.0.0/8";
+        splits = net.Split(2).ToList();
+        splits.Should().ContainInOrder(new IpAddressNetworkV4[]
+        {
+            (IpAddressNetworkV4)"10.0.0.0/10",
+            (IpAddressNetworkV4)"10.64.0.0/10",
+            (IpAddressNetworkV4)"10.128.0.0/10",
+            (IpAddressNetworkV4)"10.192.0.0/10"
+        });
+
+        // Major split from 0.0.0.0/0 to 0.0.0.0/32, to ensure it can work (we will _not_ enumerate it)
+        net = (IpAddressNetworkV4)"0.0.0.0/0";
+        splits = net.Split(32).Take(5).ToList();
+        splits.Should().ContainInOrder(new IpAddressNetworkV4[]
+        {
+            (IpAddressNetworkV4)"0.0.0.0/32",
+            (IpAddressNetworkV4)"0.0.0.1/32",
+            (IpAddressNetworkV4)"0.0.0.2/32",
+            (IpAddressNetworkV4)"0.0.0.3/32",
+            (IpAddressNetworkV4)"0.0.0.4/32"
+        });
     }
 }
