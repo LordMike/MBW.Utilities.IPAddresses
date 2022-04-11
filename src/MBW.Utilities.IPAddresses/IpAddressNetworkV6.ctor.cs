@@ -11,6 +11,21 @@ namespace MBW.Utilities.IPAddresses;
 /// </summary>
 public partial struct IpAddressNetworkV6
 {
+    private static IpAddressV6[] _networkMasks;
+
+    static IpAddressNetworkV6()
+    {
+        _networkMasks = new IpAddressV6[129];
+        _networkMasks[0] = IpAddressV6.Min;
+        _networkMasks[64] = new IpAddressV6(ulong.MaxValue, ulong.MinValue);
+        _networkMasks[128] = IpAddressV6.Max;
+
+        for (int i = 1; i < 64; i++)
+            _networkMasks[i] = new IpAddressV6(ulong.MaxValue << (64 - i), ulong.MinValue);
+        for (int i = 65; i < 128; i++)
+            _networkMasks[i] = new IpAddressV6(ulong.MaxValue, ulong.MaxValue << (128 - i));
+    }
+
     public IpAddressNetworkV6(IPAddress address, byte mask)
         : this(address.GetAddressBytes(), mask)
     {

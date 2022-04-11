@@ -15,21 +15,7 @@ public partial struct IpAddressNetworkV6
 
     public IpAddressV6 NetworkAddress => _networkAddress;
     public IpAddressV6 EndAddress => _networkAddress | NetworkWildcardMask;
-    public IpAddressV6 NetworkMask
-    {
-        get
-        {
-            return _mask switch
-            {
-                0 => IpAddressV6.Min,
-                128 => IpAddressV6.Max,
-                64 => new IpAddressV6(ulong.MaxValue, ulong.MinValue),
-                > 64 => new IpAddressV6(ulong.MaxValue, ulong.MaxValue << (128 - _mask)),
-                < 64 => new IpAddressV6(ulong.MaxValue << (64 - _mask), ulong.MinValue)
-                //_ => throw new InvalidOperationException("Expected mask in the 0..128 range")
-            };
-        }
-    }
+    public IpAddressV6 NetworkMask => _networkMasks[_mask];
     public IpAddressV6 NetworkWildcardMask => new IpAddressV6(~NetworkMask.AddressHigh, ~NetworkMask.AddressLow);
 
     public BigInteger SubnetSize

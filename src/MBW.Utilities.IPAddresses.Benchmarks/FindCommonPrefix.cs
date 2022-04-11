@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Code;
+using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses.Benchmarks;
 
@@ -18,33 +18,22 @@ public class FindCommonPrefix
             B = b;
             Expected = expected;
         }
-    }
 
-    public class CustomParam : IParam
-    {
-        private readonly InputTuple value;
-
-        public CustomParam(InputTuple value) => this.value = value;
-
-        public object Value => value;
-
-        public string DisplayText => $"(prefix: {value.Expected})";
-
-        public string ToSourceCode() => $"new InputTuple({value.A}, {value.B}, {value.Expected})";
+        public override string ToString() => $"(prefix: {Expected})";
     }
 
     [ParamsSource(nameof(Parameters))]
     public InputTuple Input;
 
-    public IEnumerable<IParam> Parameters()
+    public IEnumerable<InputTuple> Parameters()
     {
-        yield return new CustomParam(new InputTuple(0b11110100110001001100101000011100, 0b01100100110001001100001010000000, 0));
-        yield return new CustomParam(new InputTuple(0b01110100110001001100101000011100, 0b01100100110001001100001010000000, 3));
-        yield return new CustomParam(new InputTuple(0b01100100110011001100101000011100, 0b01100100110001001100001010000000, 12));
-        yield return new CustomParam(new InputTuple(0b01100100110001001100101000011100, 0b01100100110001001100001010000000, 20));
-        yield return new CustomParam(new InputTuple(0b01100100110001001100101000011100, 0b01100100110001001100101000010100, 28));
-        yield return new CustomParam(new InputTuple(0b01100100110001001100101000011100, 0b01100100110001001100101000011101, 31));
-        yield return new CustomParam(new InputTuple(0b01100100110001001100101000011100, 0b01100100110001001100101000011100, 32));
+        yield return new InputTuple(0b11110100110001001100101000011100, 0b01100100110001001100001010000000, 0);
+        yield return new InputTuple(0b01110100110001001100101000011100, 0b01100100110001001100001010000000, 3);
+        yield return new InputTuple(0b01100100110011001100101000011100, 0b01100100110001001100001010000000, 12);
+        yield return new InputTuple(0b01100100110001001100101000011100, 0b01100100110001001100001010000000, 20);
+        yield return new InputTuple(0b01100100110001001100101000011100, 0b01100100110001001100101000010100, 28);
+        yield return new InputTuple(0b01100100110001001100101000011100, 0b01100100110001001100101000011101, 31);
+        yield return new InputTuple(0b01100100110001001100101000011100, 0b01100100110001001100101000011100, 32);
     }
 
     private static readonly byte[] BytePrefix = {
@@ -65,6 +54,12 @@ public class FindCommonPrefix
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
+
+    [Benchmark]
+    public byte Current()
+    {
+        return BitUtilities.FindCommonPrefixSize(Input.A, Input.B);
+    }
 
     [Benchmark]
     public void LookupTable()
@@ -166,7 +161,7 @@ public class FindCommonPrefix
     }
 
     [Benchmark]
-    public void ShiftTillHit()
+    public void ShiftTillEqual()
     {
         // https://stackoverflow.com/a/3313963/1246988
         uint a = Input.A;
@@ -188,9 +183,38 @@ public class FindCommonPrefix
     public void Logarithmic()
     {
         // https://stackoverflow.com/a/3314434/1246988
-        var prefix = (Input.A != Input.B) ? (31 - (int)Math.Log(Input.A ^ Input.B, 2)) : 32;
+        int prefix = (Input.A != Input.B) ? (31 - (int)Math.Log(Input.A ^ Input.B, 2)) : 32;
 
         if (prefix != Input.Expected)
             throw new ArgumentException();
+    }
+
+    [Benchmark]
+    public uint KernighanXNOR()
+    {
+        // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
+        // A XNOR B provides matching bits; count them
+        uint v = ~(Input.A ^ Input.B); // count the number of bits set in v
+        uint c = 0; // c accumulates the total bits set in v
+        for (; v > 0; c++)
+        {
+            v &= v - 1; // clear the least significant bit set
+        }
+
+        return c;
+    }
+
+    [Benchmark]
+    public uint ParallelXNOR()
+    {
+        // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+        // A XNOR B provides matching bits; count them
+        uint v = ~(Input.A ^ Input.B);
+
+        v = v - ((v >> 1) & 0x55555555);                    // reuse input as temporary
+        v = (v & 0x33333333) + ((v >> 2) & 0x33333333);     // temp
+        uint c = ((v + (v >> 4) & 0xF0F0F0F) * 0x1010101) >> 24; // count
+
+        return c;
     }
 }
