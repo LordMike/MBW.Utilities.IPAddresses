@@ -14,28 +14,17 @@ public partial struct IpAddressV6 : IComparable, IComparable<IpAddressV6>, IEqua
 
     public int CompareTo(IpAddressV6 other)
     {
-        int res = _addressHigh.CompareTo(other._addressHigh);
-
-        if (res != 0)
-            return res;
-
-        return _addressLow.CompareTo(other._addressLow);
+        return _address.CompareTo(other._address);
     }
 
     public override int GetHashCode()
     {
-        unchecked
-        {
-            int hashCode = _addressHigh.GetHashCode();
-            hashCode = (hashCode * 397) ^ _addressLow.GetHashCode();
-            return hashCode;
-        }
+        return _address.GetHashCode();
     }
 
     public bool Equals(IpAddressV6 other)
     {
-        return _addressHigh == other._addressHigh &&
-               _addressLow == other._addressLow;
+        return _address == other._address;
     }
 
     public override bool Equals(object obj)

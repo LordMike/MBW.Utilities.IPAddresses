@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dirichlet.Numerics;
 using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses;
@@ -10,23 +11,11 @@ public partial struct IpAddressNetworkV6
     /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV6}.Contains(IpAddressNetworkV6)"/>
     public bool Contains(IpAddressNetworkV6 other)
     {
-        bool canBeInNetwork = _mask < other._mask;
+        if (other.Mask <= _mask)
+            return false;
 
-        if (_mask >= 64)
-        {
-            ulong otherMaskedToThisNetworkLow = other.NetworkAddress.AddressLow & (uint.MaxValue << _mask);
-            bool highMatches = other.NetworkAddress.AddressHigh == _networkAddress.AddressHigh;
-            bool isInNetwork = (otherMaskedToThisNetworkLow & _networkAddress.AddressLow) == otherMaskedToThisNetworkLow;
-
-            return canBeInNetwork && highMatches && isInNetwork;
-        }
-        else
-        {
-            ulong otherMaskedToThisNetworkHigh = other.NetworkAddress.AddressHigh & (uint.MaxValue << _mask);
-            bool isInNetwork = (otherMaskedToThisNetworkHigh & _networkAddress.AddressHigh) == otherMaskedToThisNetworkHigh;
-
-            return canBeInNetwork && isInNetwork;
-        }
+        IpAddressV6 sharedNetwork = NetworkMask & other._networkAddress;
+        return sharedNetwork == _networkAddress;
     }
 
     /// <inheritdoc cref="Docs.IIPAddressNetworkDocs{IpAddressNetworkV6}.ContainsOrEqual(IpAddressNetworkV6)"/>
@@ -35,7 +24,7 @@ public partial struct IpAddressNetworkV6
         if (other.Mask < _mask)
             return false;
 
-        IpAddressV6 sharedNetwork = NetworkMask & other.NetworkAddress;
+        IpAddressV6 sharedNetwork = NetworkMask & other._networkAddress;
         return sharedNetwork == _networkAddress;
     }
 
@@ -59,24 +48,14 @@ public partial struct IpAddressNetworkV6
     {
         bool hadAny = false;
         byte shortestMask = 128;
-        ulong finalHigh = uint.MaxValue;
-        ulong finalLow = uint.MaxValue;
+        UInt128 final = UInt128.MaxValue;
 
-        foreach (IpAddressNetworkV6 range in others)
+        foreach (IpAddressNetworkV6 other in others)
         {
-            finalHigh &= range.NetworkAddress.AddressHigh;
-            finalLow &= range.NetworkAddress.AddressLow;
+            final &= other._networkAddress.Address;
 
-            byte highMask = BitUtilities.FindCommonPrefixSize(finalHigh, range.NetworkAddress.AddressHigh);
-            if (highMask == 64)
-            {
-                byte lowMask = (byte)(64 + BitUtilities.FindCommonPrefixSize(finalLow, range.NetworkAddress.AddressLow));
-                shortestMask = Math.Min(shortestMask, lowMask);
-            }
-            else
-            {
-                shortestMask = Math.Min(shortestMask, highMask);
-            }
+            byte lowestCommon = BitUtilities.FindCommonPrefixSize(final, other._networkAddress.Address);
+            shortestMask = Math.Min(shortestMask, lowestCommon);
 
             hadAny = true;
         }
@@ -84,7 +63,7 @@ public partial struct IpAddressNetworkV6
         if (!hadAny)
             throw new ArgumentException("Input was empty", nameof(others));
 
-        return new IpAddressNetworkV6(finalHigh, finalLow, shortestMask);
+        return new IpAddressNetworkV6(new IpAddressV6(final), shortestMask);
     }
 
     public static IpAddressNetworkV6 MakeSupernet(params IpAddressNetworkV6[] others) => MakeSupernet((IEnumerable<IpAddressNetworkV6>)others);

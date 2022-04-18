@@ -11,22 +11,22 @@ public partial struct IpAddressV6
         if (bytes.Length < 16)
             throw new ArgumentOutOfRangeException(nameof(bytes));
 
-        bytes[0] = (byte)((_addressHigh >> 56) & 0xFF);
-        bytes[1] = (byte)((_addressHigh >> 48) & 0xFF);
-        bytes[2] = (byte)((_addressHigh >> 40) & 0xFF);
-        bytes[3] = (byte)((_addressHigh >> 32) & 0xFF);
-        bytes[4] = (byte)((_addressHigh >> 24) & 0xFF);
-        bytes[5] = (byte)((_addressHigh >> 16) & 0xFF);
-        bytes[6] = (byte)((_addressHigh >> 8) & 0xFF);
-        bytes[7] = (byte)(_addressHigh & 0xFF);
-        bytes[8] = (byte)((_addressLow >> 56) & 0xFF);
-        bytes[9] = (byte)((_addressLow >> 48) & 0xFF);
-        bytes[10] = (byte)((_addressLow >> 40) & 0xFF);
-        bytes[11] = (byte)((_addressLow >> 32) & 0xFF);
-        bytes[12] = (byte)((_addressLow >> 24) & 0xFF);
-        bytes[13] = (byte)((_addressLow >> 16) & 0xFF);
-        bytes[14] = (byte)((_addressLow >> 8) & 0xFF);
-        bytes[15] = (byte)(_addressLow & 0xFF);
+        bytes[0] = (byte)((AddressHigh >> 56) & 0xFF);
+        bytes[1] = (byte)((AddressHigh >> 48) & 0xFF);
+        bytes[2] = (byte)((AddressHigh >> 40) & 0xFF);
+        bytes[3] = (byte)((AddressHigh >> 32) & 0xFF);
+        bytes[4] = (byte)((AddressHigh >> 24) & 0xFF);
+        bytes[5] = (byte)((AddressHigh >> 16) & 0xFF);
+        bytes[6] = (byte)((AddressHigh >> 8) & 0xFF);
+        bytes[7] = (byte)(AddressHigh & 0xFF);
+        bytes[8] = (byte)((AddressLow >> 56) & 0xFF);
+        bytes[9] = (byte)((AddressLow >> 48) & 0xFF);
+        bytes[10] = (byte)((AddressLow >> 40) & 0xFF);
+        bytes[11] = (byte)((AddressLow >> 32) & 0xFF);
+        bytes[12] = (byte)((AddressLow >> 24) & 0xFF);
+        bytes[13] = (byte)((AddressLow >> 16) & 0xFF);
+        bytes[14] = (byte)((AddressLow >> 8) & 0xFF);
+        bytes[15] = (byte)(AddressLow & 0xFF);
     }
 
     public byte[] AddressToBytes()

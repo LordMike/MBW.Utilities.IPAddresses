@@ -5,6 +5,7 @@ using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses.Benchmarks;
 
+[ShortRunJob]
 public class FindCommonPrefix
 {
     public struct InputTuple
@@ -200,20 +201,6 @@ public class FindCommonPrefix
         {
             v &= v - 1; // clear the least significant bit set
         }
-
-        return c;
-    }
-
-    [Benchmark]
-    public uint ParallelXNOR()
-    {
-        // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-        // A XNOR B provides matching bits; count them
-        uint v = ~(Input.A ^ Input.B);
-
-        v = v - ((v >> 1) & 0x55555555);                    // reuse input as temporary
-        v = (v & 0x33333333) + ((v >> 2) & 0x33333333);     // temp
-        uint c = ((v + (v >> 4) & 0xF0F0F0F) * 0x1010101) >> 24; // count
 
         return c;
     }

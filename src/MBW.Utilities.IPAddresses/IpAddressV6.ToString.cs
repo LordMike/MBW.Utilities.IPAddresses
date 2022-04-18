@@ -16,23 +16,23 @@ public partial struct IpAddressV6
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.Append((_addressHigh >> 56).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 48) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 40) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 32) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 24) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 16) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressHigh >> 8) & 0xFF).ToString()).Append(".");
-        sb.Append((_addressHigh & 0xFF).ToString()).Append(".");
+        sb.Append((AddressHigh >> 56).ToString()).Append(".");
+        sb.Append(((AddressHigh >> 48) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressHigh >> 40) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressHigh >> 32) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressHigh >> 24) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressHigh >> 16) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressHigh >> 8) & 0xFF).ToString()).Append(".");
+        sb.Append((AddressHigh & 0xFF).ToString()).Append(".");
 
-        sb.Append((_addressLow >> 56).ToString()).Append(".");
-        sb.Append(((_addressLow >> 48) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 40) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 32) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 24) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 16) & 0xFF).ToString()).Append(".");
-        sb.Append(((_addressLow >> 8) & 0xFF).ToString()).Append(".");
-        sb.Append((_addressLow & 0xFF).ToString());
+        sb.Append((AddressLow >> 56).ToString()).Append(".");
+        sb.Append(((AddressLow >> 48) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressLow >> 40) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressLow >> 32) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressLow >> 24) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressLow >> 16) & 0xFF).ToString()).Append(".");
+        sb.Append(((AddressLow >> 8) & 0xFF).ToString()).Append(".");
+        sb.Append((AddressLow & 0xFF).ToString());
 
         return sb.ToString();
     }
