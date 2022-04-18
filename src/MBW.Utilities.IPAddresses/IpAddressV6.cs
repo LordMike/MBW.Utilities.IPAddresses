@@ -14,6 +14,6 @@ public partial struct IpAddressV6
     private readonly UInt128 _address;
     internal UInt128 Address => _address;
 
-    public ulong AddressHigh => _address.S1;
-    public ulong AddressLow => _address.S0;
+    public ulong AddressHigh => _address.S0;
+    public ulong AddressLow => _address.S1;
 }

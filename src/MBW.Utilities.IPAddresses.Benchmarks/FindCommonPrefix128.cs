@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
 using Dirichlet.Numerics;
 using MBW.Utilities.IPAddresses.Helpers;
 
 namespace MBW.Utilities.IPAddresses.Benchmarks;
 
+[ShortRunJob]
 public class FindCommonPrefix128
 {
     private static readonly byte[] BytePrefix = {
@@ -72,67 +72,67 @@ public class FindCommonPrefix128
         // A XNOR B provides matching bits; count them
         UInt128 xor = Input.A ^ Input.B;
 
-        byte common = BytePrefix[(xor.S1 >> 56) & 0xFF];
+        byte common = BytePrefix[(xor.S0 >> 56) & 0xFF];
         if (common < 8)
             return common;
 
-        common += BytePrefix[(xor.S1 >> 48) & 0xFF];
+        common += BytePrefix[(xor.S0 >> 48) & 0xFF];
         if (common < 16)
             return common;
 
-        common += BytePrefix[(xor.S1 >> 40) & 0xFF];
+        common += BytePrefix[(xor.S0 >> 40) & 0xFF];
         if (common < 24)
             return common;
 
-        common += BytePrefix[(xor.S1 >> 32) & 0xFF];
+        common += BytePrefix[(xor.S0 >> 32) & 0xFF];
         if (common < 32)
             return common;
 
-        common += BytePrefix[(xor.S1 >> 24) & 0xFF];
+        common += BytePrefix[(xor.S0 >> 24) & 0xFF];
         if (common < 40)
             return common;
 
-        common += BytePrefix[(xor.S1 >> 16) & 0xFF];
+        common += BytePrefix[(xor.S0 >> 16) & 0xFF];
         if (common < 48)
             return common;
 
-        common += BytePrefix[(xor.S1 >> 8) & 0xFF];
+        common += BytePrefix[(xor.S0 >> 8) & 0xFF];
         if (common < 56)
             return common;
 
-        common += BytePrefix[(xor.S1) & 0xFF];
+        common += BytePrefix[(xor.S0) & 0xFF];
         if (common < 64)
             return common;
 
-        common = BytePrefix[(xor.S0 >> 56) & 0xFF];
+        common += BytePrefix[(xor.S1 >> 56) & 0xFF];
         if (common < 72)
             return common;
 
-        common += BytePrefix[(xor.S0 >> 48) & 0xFF];
+        common += BytePrefix[(xor.S1 >> 48) & 0xFF];
         if (common < 80)
             return common;
 
-        common += BytePrefix[(xor.S0 >> 40) & 0xFF];
+        common += BytePrefix[(xor.S1 >> 40) & 0xFF];
         if (common < 88)
             return common;
 
-        common += BytePrefix[(xor.S0 >> 32) & 0xFF];
+        common += BytePrefix[(xor.S1 >> 32) & 0xFF];
         if (common < 96)
             return common;
 
-        common += BytePrefix[(xor.S0 >> 24) & 0xFF];
+        common += BytePrefix[(xor.S1 >> 24) & 0xFF];
         if (common < 104)
             return common;
 
-        common += BytePrefix[(xor.S0 >> 16) & 0xFF];
+        common += BytePrefix[(xor.S1 >> 16) & 0xFF];
         if (common < 112)
             return common;
 
-        common += BytePrefix[(xor.S0 >> 8) & 0xFF];
+        common += BytePrefix[(xor.S1 >> 8) & 0xFF];
         if (common < 120)
             return common;
 
-        common += BytePrefix[(xor.S0) & 0xFF];
+        common += BytePrefix[(xor.S1) & 0xFF];
         if (common < 128)
             return common;
 

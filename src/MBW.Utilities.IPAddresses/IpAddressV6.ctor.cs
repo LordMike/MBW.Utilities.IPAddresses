@@ -27,7 +27,7 @@ public partial struct IpAddressV6
 
     public IpAddressV6(ulong addressHigh, ulong addressLow)
     {
-        UInt128.Create(out _address, addressLow, addressHigh);
+        UInt128.Create(out _address, addressHigh, addressLow);
     }
 
     public IpAddressV6(ushort tuple0, ushort tuple1, ushort tuple2, ushort tuple3, ushort tuple4, ushort tuple5, ushort tuple6, ushort tuple7)
@@ -37,7 +37,7 @@ public partial struct IpAddressV6
         uint u2 = (uint)(tuple4 << 16) | tuple5;
         uint u3 = (uint)(tuple6 << 16) | tuple7;
 
-        UInt128.Create(out _address, u3, u2, u1, u0);
+        UInt128.Create(out _address, u0, u1, u2, u3);
     }
 
     public IpAddressV6(byte octet0, byte octet1, byte octet2, byte octet3, byte octet4, byte octet5, byte octet6, byte octet7, byte octet8, byte octet9, byte octet10, byte octet11, byte octet12, byte octet13, byte octet14, byte octet15)
@@ -47,7 +47,7 @@ public partial struct IpAddressV6
         uint u2 = (uint)(octet8 << 24) | (uint)(octet9 << 16) | (uint)(octet10 << 8) | octet11;
         uint u3 = (uint)(octet12 << 24) | (uint)(octet13 << 16) | (uint)(octet14 << 8) | octet15;
 
-        UInt128.Create(out _address, u3, u2, u1, u0);
+        UInt128.Create(out _address, u0, u1, u2, u3);
     }
 
     internal IpAddressV6(UInt128 address)
