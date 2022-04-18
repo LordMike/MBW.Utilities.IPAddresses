@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Dirichlet.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace MBW.Utilities.IPAddresses.Helpers;
 
@@ -61,80 +62,76 @@ internal static class BitUtilities
         return prefix;
     }
 
-    public static byte FindCommonPrefixSize(ulong a, ulong b)
+    public static byte FindCommonPrefixSize(UInt128 a, UInt128 b)
     {
-        byte prefix = 0;
-        ulong byteA = (a >> 56) & 0xFF;
-        ulong byteB = (b >> 56) & 0xFF;
-        byte common = BytePrefix[byteA ^ byteB];
+        // A XOR B provides non-matching bits; count them
+        UInt128 xor = a ^ b;
 
-        prefix += common;
-        if (common == 8)
-        {
-            byteA = (a >> 48) & 0xFF;
-            byteB = (b >> 48) & 0xFF;
-            common = BytePrefix[byteA ^ byteB];
+        byte common = BytePrefix[(xor.S1 >> 56) & 0xFF];
+        if (common < 8)
+            return common;
 
-            prefix += common;
+        common += BytePrefix[(xor.S1 >> 48) & 0xFF];
+        if (common < 16)
+            return common;
 
-            if (common == 8)
-            {
-                byteA = (a >> 40) & 0xFF;
-                byteB = (b >> 40) & 0xFF;
-                common = BytePrefix[byteA ^ byteB];
+        common += BytePrefix[(xor.S1 >> 40) & 0xFF];
+        if (common < 24)
+            return common;
 
-                prefix += common;
+        common += BytePrefix[(xor.S1 >> 32) & 0xFF];
+        if (common < 32)
+            return common;
 
-                if (common == 8)
-                {
-                    byteA = (a >> 32) & 0xFF;
-                    byteB = (b >> 32) & 0xFF;
-                    common = BytePrefix[byteA ^ byteB];
+        common += BytePrefix[(xor.S1 >> 24) & 0xFF];
+        if (common < 40)
+            return common;
 
-                    prefix += common;
+        common += BytePrefix[(xor.S1 >> 16) & 0xFF];
+        if (common < 48)
+            return common;
 
-                    if (common == 8)
-                    {
-                        byteA = (a >> 24) & 0xFF;
-                        byteB = (b >> 24) & 0xFF;
-                        common = BytePrefix[byteA ^ byteB];
+        common += BytePrefix[(xor.S1 >> 8) & 0xFF];
+        if (common < 56)
+            return common;
 
-                        prefix += common;
+        common += BytePrefix[(xor.S1) & 0xFF];
+        if (common < 64)
+            return common;
 
-                        if (common == 8)
-                        {
-                            byteA = (a >> 16) & 0xFF;
-                            byteB = (b >> 16) & 0xFF;
-                            common = BytePrefix[byteA ^ byteB];
+        common = BytePrefix[(xor.S0 >> 56) & 0xFF];
+        if (common < 72)
+            return common;
 
-                            prefix += common;
+        common += BytePrefix[(xor.S0 >> 48) & 0xFF];
+        if (common < 80)
+            return common;
 
-                            if (common == 8)
-                            {
-                                byteA = (a >> 8) & 0xFF;
-                                byteB = (b >> 8) & 0xFF;
-                                common = BytePrefix[byteA ^ byteB];
+        common += BytePrefix[(xor.S0 >> 40) & 0xFF];
+        if (common < 88)
+            return common;
 
-                                prefix += common;
+        common += BytePrefix[(xor.S0 >> 32) & 0xFF];
+        if (common < 96)
+            return common;
 
-                                if (common == 8)
-                                {
-                                    byteA = a & 0xFF;
-                                    byteB = b & 0xFF;
-                                    common = BytePrefix[byteA ^ byteB];
+        common += BytePrefix[(xor.S0 >> 24) & 0xFF];
+        if (common < 104)
+            return common;
 
-                                    prefix += common;
+        common += BytePrefix[(xor.S0 >> 16) & 0xFF];
+        if (common < 112)
+            return common;
 
+        common += BytePrefix[(xor.S0 >> 8) & 0xFF];
+        if (common < 120)
+            return common;
 
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        common += BytePrefix[(xor.S0) & 0xFF];
+        if (common < 128)
+            return common;
 
-        return prefix;
+        return common;
     }
 
     public static uint Reverse(uint value)

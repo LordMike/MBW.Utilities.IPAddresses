@@ -1,4 +1,6 @@
-﻿namespace MBW.Utilities.IPAddresses;
+﻿using Dirichlet.Numerics;
+
+namespace MBW.Utilities.IPAddresses;
 
 /// <summary>
 /// Represents an IPv6 address. This is typically represented as '2001:db8::8873:fee0'
@@ -9,9 +11,9 @@ public partial struct IpAddressV6
     public static IpAddressV6 Min { get; } = new IpAddressV6(0, 0);
     public static IpAddressV6 Max { get; } = new IpAddressV6(ulong.MaxValue, ulong.MaxValue);
 
-    private readonly ulong _addressHigh;
-    private readonly ulong _addressLow;
+    private readonly UInt128 _address;
+    internal UInt128 Address => _address;
 
-    public ulong AddressHigh => _addressHigh;
-    public ulong AddressLow => _addressLow;
+    public ulong AddressHigh => _address.S1;
+    public ulong AddressLow => _address.S0;
 }

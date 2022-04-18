@@ -16,7 +16,7 @@ public partial struct IpAddressNetworkV6
     public IpAddressV6 NetworkAddress => _networkAddress;
     public IpAddressV6 EndAddress => _networkAddress | NetworkWildcardMask;
     public IpAddressV6 NetworkMask => _networkMasks[_mask];
-    public IpAddressV6 NetworkWildcardMask => new IpAddressV6(~NetworkMask.AddressHigh, ~NetworkMask.AddressLow);
+    public IpAddressV6 NetworkWildcardMask => new IpAddressV6(~_networkMasks[_mask].Address);
 
     public BigInteger SubnetSize
     {

@@ -23,6 +23,6 @@ public partial struct IpAddressV6
 
     public static explicit operator IPAddress(IpAddressV6 value)
     {
-        return ConversionUtilities.ToIp(value._addressHigh, value._addressLow);
+        return ConversionUtilities.ToIp(value.AddressHigh, value.AddressLow);
     }
 }

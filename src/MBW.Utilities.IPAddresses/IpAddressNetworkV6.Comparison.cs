@@ -14,12 +14,7 @@ public partial struct IpAddressNetworkV6 : IComparable, IComparable<IpAddressNet
 
     public int CompareTo(IpAddressNetworkV6 other)
     {
-        int res = _networkAddress.AddressHigh.CompareTo(other.NetworkAddress.AddressHigh);
-
-        if (res != 0)
-            return res;
-
-        res = _networkAddress.AddressLow.CompareTo(other.NetworkAddress.AddressLow);
+        int res = _networkAddress.CompareTo(other.NetworkAddress);
 
         if (res != 0)
             return res;
@@ -31,8 +26,7 @@ public partial struct IpAddressNetworkV6 : IComparable, IComparable<IpAddressNet
     {
         unchecked
         {
-            int hashCode = _networkAddress.AddressHigh.GetHashCode();
-            hashCode = (hashCode * 397) ^ _networkAddress.AddressLow.GetHashCode();
+            int hashCode = _networkAddress.GetHashCode();
             hashCode = (hashCode * 397) ^ _mask.GetHashCode();
             return hashCode;
         }
@@ -41,8 +35,7 @@ public partial struct IpAddressNetworkV6 : IComparable, IComparable<IpAddressNet
     public bool Equals(IpAddressNetworkV6 other)
     {
         return _mask == other._mask &&
-               _networkAddress.AddressHigh == other.NetworkAddress.AddressHigh &&
-               _networkAddress.AddressLow == other.NetworkAddress.AddressLow;
+               _networkAddress == other.NetworkAddress;
     }
 
     public override bool Equals(object obj)
