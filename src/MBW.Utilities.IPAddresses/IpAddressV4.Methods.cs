@@ -35,11 +35,11 @@ public partial struct IpAddressV4
 
     public static IpAddressV4 operator &(IpAddressV4 left, IpAddressV4 right)
     {
-        return new IpAddressV4(left.AddressUint & right.AddressUint);
+        return new IpAddressV4(left.Address & right.Address);
     }
 
     public static IpAddressV4 operator |(IpAddressV4 left, IpAddressV4 right)
     {
-        return new IpAddressV4(left.AddressUint | right.AddressUint);
+        return new IpAddressV4(left.Address | right.Address);
     }
 }

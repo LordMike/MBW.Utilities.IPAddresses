@@ -23,6 +23,6 @@ public partial struct IpAddressV4
 
     public static explicit operator IPAddress(IpAddressV4 value)
     {
-        return new IPAddress(BitUtilities.Reverse(value.AddressUint));
+        return new IPAddress(BitUtilities.Reverse(value.Address));
     }
 }

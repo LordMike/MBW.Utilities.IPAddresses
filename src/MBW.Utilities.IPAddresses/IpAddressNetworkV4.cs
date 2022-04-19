@@ -13,7 +13,7 @@ public partial struct IpAddressNetworkV4
     public IpAddressV4 NetworkAddress => _networkAddress;
     public IpAddressV4 BroadcastAddress => _networkAddress | NetworkWildcardMask;
     public IpAddressV4 NetworkMask => _mask == 0 ? IpAddressV4.Min : new IpAddressV4(uint.MaxValue << (32 - _mask));
-    public IpAddressV4 NetworkWildcardMask => new IpAddressV4(~NetworkMask.AddressUint);
+    public IpAddressV4 NetworkWildcardMask => new IpAddressV4(~NetworkMask.Address);
 
     /// <summary>
     /// Number of addresses in this network, this includes the normally unusuable Network address and broadcast address.

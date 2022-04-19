@@ -19,7 +19,7 @@ public partial struct IpAddressNetworkV4
         if (mask == 0)
             _networkAddress = IpAddressV4.Min;
         else
-            _networkAddress = new IpAddressV4(address.AddressUint & (uint.MaxValue << (32 - _mask)));
+            _networkAddress = new IpAddressV4(address.Address & (uint.MaxValue << (32 - _mask)));
     }
 
     public IpAddressNetworkV4(uint address, byte mask)

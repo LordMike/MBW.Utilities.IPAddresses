@@ -369,7 +369,7 @@ public partial struct IpAddressNetworkV6
                     if (!IpAddressNetworkV4.TryParse(value[1..], out IpAddressNetworkV4 ipv4))
                         return default;
 
-                    low += ipv4.NetworkAddress.AddressUint;
+                    low += ipv4.NetworkAddress.Address;
                     return new IpAddressNetworkV6(high, low, mask);
                 }
 

@@ -1,6 +1,6 @@
 ﻿namespace MBW.Utilities.IPAddresses.DataStructures;
 
-public class IPv6Set<TValue> : IPSet<IpAddressNetworkV6, TValue>
+public sealed class IPv6Set<TValue> : IPSet<IpAddressNetworkV6, TValue>
 {
     public IPv6Set() : base()
     {

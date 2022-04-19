@@ -1,6 +1,6 @@
 ﻿namespace MBW.Utilities.IPAddresses.DataStructures;
 
-public class IPv4Set<TValue> : IPSet<IpAddressNetworkV4, TValue>
+public sealed class IPv4Set<TValue> : IPSet<IpAddressNetworkV4, TValue>
 {
     public IPv4Set() : base()
     {

@@ -14,5 +14,5 @@ public partial struct IpAddressV4
     /// <summary>
     /// Gets the internal representation of this IPv4, in Big-endian order.
     /// </summary>
-    public uint AddressUint => _address;
+    public uint Address => _address;
 }

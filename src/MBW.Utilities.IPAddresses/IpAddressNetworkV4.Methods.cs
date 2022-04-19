@@ -48,9 +48,9 @@ public partial struct IpAddressNetworkV4
 
         foreach (IpAddressNetworkV4 range in others)
         {
-            final &= range._networkAddress.AddressUint;
+            final &= range._networkAddress.Address;
 
-            byte lowestCommon = BitUtilities.FindCommonPrefixSize(final, range._networkAddress.AddressUint);
+            byte lowestCommon = BitUtilities.FindCommonPrefixSize(final, range._networkAddress.Address);
             shortestMask = Math.Min(shortestMask, lowestCommon);
 
             hadAny = true;
@@ -71,7 +71,7 @@ public partial struct IpAddressNetworkV4
         if (bytes.Length < 4)
             throw new ArgumentOutOfRangeException(nameof(bytes));
 
-        uint asUint = _networkAddress.AddressUint;
+        uint asUint = _networkAddress.Address;
         bytes[0] = (byte)((asUint >> 24) & 0xFF);
         bytes[1] = (byte)((asUint >> 16) & 0xFF);
         bytes[2] = (byte)((asUint >> 8) & 0xFF);
@@ -105,7 +105,7 @@ public partial struct IpAddressNetworkV4
         // Determine last network
         // We use this to determine when to stop producing networks. Other approaches may lead to infinite loops (when running unchecked arithmetics)
         uint networksBitmask = uint.MaxValue >> (32 - maskIncrement);
-        IpAddressV4 lastNetwork = new IpAddressV4(_networkAddress.AddressUint | (networksBitmask << (32 - newMask)));
+        IpAddressV4 lastNetwork = new IpAddressV4(_networkAddress.Address | (networksBitmask << (32 - newMask)));
 
         // Create increment value
         uint incrementVal = 1U << (32 - newMask);
@@ -119,7 +119,7 @@ public partial struct IpAddressNetworkV4
 
             do
             {
-                currentNet = new IpAddressV4(currentNet.AddressUint + incrementVal);
+                currentNet = new IpAddressV4(currentNet.Address + incrementVal);
                 yield return new IpAddressNetworkV4(currentNet, newMask);
             } while (currentNet != lastNetwork);
         }

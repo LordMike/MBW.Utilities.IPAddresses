@@ -9,7 +9,7 @@ public class EndianTests
     [Fact]
     public void IPv4Endianness()
     {
-        void Test(IpAddressV4 ip) => ip.AddressUint.Should().Be(0xC0A80A40);
+        void Test(IpAddressV4 ip) => ip.Address.Should().Be(0xC0A80A40);
 
         // Tests that IP adresses are parsed to Big-endian order internally
         Test(new IpAddressV4(IPAddress.Parse("192.168.10.64")));

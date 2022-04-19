@@ -25,7 +25,7 @@ public partial struct IpAddressNetworkV4
 
     public string ToPrefixString()
     {
-        uint asUint = _networkAddress.AddressUint;
+        uint asUint = _networkAddress.Address;
         if (_mask <= 8 && (asUint & 0xFFFFFF) == 0)
         {
             // Return 1 octet
