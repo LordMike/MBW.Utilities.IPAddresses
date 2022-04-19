@@ -111,4 +111,37 @@ public partial struct IpAddressNetworkV6
 
         AddressToBytes(bytes.AsSpan().Slice(offset, 16));
     }
+
+    public IEnumerable<IpAddressNetworkV6> Split(byte maskIncrement = 1)
+    {
+        int newMaskInt = _mask + maskIncrement;
+        if (newMaskInt <= _mask || newMaskInt > 128)
+            throw new ArgumentOutOfRangeException($"The increment ({maskIncrement}) must place the new mask between this networks mask ({_mask}) and 128", nameof(maskIncrement));
+
+        byte newMask = (byte)newMaskInt;
+
+        // Determine last network
+        // We use this to determine when to stop producing networks. Other approaches may lead to infinite loops (when running unchecked arithmetics)
+        UInt128 networksBitmask = UInt128.MaxValue >> (128 - maskIncrement);
+        IpAddressV6 lastNetwork = new IpAddressV6(_networkAddress.Address | (networksBitmask << (128 - newMask)));
+
+        // Create increment value
+        UInt128 incrementVal = UInt128.One << (128 - newMask);
+        IpAddressV6 currentNet = _networkAddress;
+
+        // Ensure we can fail fast on the arguments
+        IEnumerable<IpAddressNetworkV6> Enumerate()
+        {
+            // Produce networks as long as we're within our current network
+            yield return new IpAddressNetworkV6(currentNet, newMask);
+
+            do
+            {
+                currentNet = new IpAddressV6(currentNet.Address + incrementVal);
+                yield return new IpAddressNetworkV6(currentNet, newMask);
+            } while (currentNet != lastNetwork);
+        }
+
+        return Enumerate();
+    }
 }
