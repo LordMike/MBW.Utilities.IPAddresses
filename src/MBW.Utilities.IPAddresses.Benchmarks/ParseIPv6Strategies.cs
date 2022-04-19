@@ -5,6 +5,7 @@ using System.Net;
 namespace MBW.Utilities.IPAddresses.Benchmarks;
 
 [MemoryDiagnoser]
+[ShortRunJob]
 //[SimpleJob(runtimeMoniker: RuntimeMoniker.Net50)]
 //[SimpleJob(runtimeMoniker: RuntimeMoniker.Net60)]
 public class ParseIPv6Strategies

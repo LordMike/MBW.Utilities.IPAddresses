@@ -5,6 +5,7 @@ using MBW.Utilities.IPAddresses.Tokenization;
 namespace MBW.Utilities.IPAddresses.Benchmarks;
 
 [MemoryDiagnoser]
+[ShortRunJob]
 public class TokenizerTest
 {
     [Benchmark]
