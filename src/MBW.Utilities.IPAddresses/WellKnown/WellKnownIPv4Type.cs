@@ -9,5 +9,6 @@ public enum WellKnownIPv4Type
     Documentation,
     Benchmark,
     Multicast,
-    CarrierGradeNat
+    CarrierGradeNat,
+    Broadcast
 }

@@ -26,6 +26,8 @@ public sealed class WellKnownIPv4 : WellKnownBase<IpAddressV4, IpAddressNetworkV
 
         Add(WellKnownIPv4Type.Multicast, (IpAddressNetworkV4)"224.0.0.0/4");
         Add(WellKnownIPv4Type.CarrierGradeNat, (IpAddressNetworkV4)"100.64.0.0/10");
+
+        Add(WellKnownIPv4Type.Broadcast, (IpAddressNetworkV4)"255.255.255.255/32");
     }
 
     protected override bool Contains(IpAddressNetworkV4 network, IpAddressNetworkV4 candidate) => network.Contains(candidate);
