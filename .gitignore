@@ -3,6 +3,9 @@ bin/
 obj/
 Build/
 
+# Benchmark
+BenchmarkDotNet.Artifacts/
+
 # Files for local dev
 *.user
 *.local.json
