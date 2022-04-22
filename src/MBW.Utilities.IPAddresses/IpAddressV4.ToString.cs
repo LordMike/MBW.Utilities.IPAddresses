@@ -22,9 +22,12 @@ public partial struct IpAddressV4
         tw.Write(ToString());
     }
 
-    public void ToString(Span<char> span)
+    public void ToString(Span<char> span) => ToString(span, out _);
+
+    public void ToString(Span<char> span, out int written)
     {
         ReadOnlySpan<char> str = ToString().AsSpan();
         str.CopyTo(span);
+        written = str.Length;
     }
 }

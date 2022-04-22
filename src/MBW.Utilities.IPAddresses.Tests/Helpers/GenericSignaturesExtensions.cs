@@ -20,7 +20,8 @@ internal static class GenericSignaturesExtensions
             .MustHave("instance System.String ToString()")
             .MustHave("instance Void ToString(System.Text.StringBuilder)")
             .MustHave("instance Void ToString(System.IO.TextWriter)")
-            .MustHave("instance Void ToString(System.Span`1[System.Char])");
+            .MustHave("instance Void ToString(System.Span`1[System.Char])")
+            .MustHave("instance Void ToString(System.Span`1[System.Char], Int32 ByRef)");
     }
 
     public static SignaturesBuilder MustHaveEquality(this SignaturesBuilder builder)

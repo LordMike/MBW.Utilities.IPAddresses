@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using MBW.Utilities.IPAddresses.Tests.SignaturesLib;
 using Xunit;
 
 namespace MBW.Utilities.IPAddresses.Tests;
@@ -11,8 +12,7 @@ public class IPv4AddressTests
     public void ToStringTests(string str, string expected)
     {
         IpAddressV4 network = (IpAddressV4)str;
-
-        network.ToString().Should().Be(expected);
+        TestHelpers.TestToStringMethods(network, expected);
     }
 
     [Theory]

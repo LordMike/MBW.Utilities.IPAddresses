@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using FluentAssertions;
+using MBW.Utilities.IPAddresses.Tests.SignaturesLib;
 using Xunit;
 
 namespace MBW.Utilities.IPAddresses.Tests;
@@ -39,7 +40,7 @@ public class IPv6AddressTests
         parsed.AddressLow.Should().Be(expectedLow);
 
         // This representation is special, and should still be the IPv4 in IPv6 mapped
-        parsed.ToString().Should().Be("::192.168.10.1");
+        TestHelpers.TestToStringMethods(parsed, "::192.168.10.1");
     }
 
     /// <summary>
@@ -58,7 +59,7 @@ public class IPv6AddressTests
         parsed.AddressLow.Should().Be(expectedLow);
 
         // This representation is special, and should still be the IPv4 in IPv6 mapped
-        parsed.ToString().Should().Be("::ffff:" + test.Split(':').Last());
+        TestHelpers.TestToStringMethods(parsed, "::ffff:" + test.Split(':').Last());
     }
 
     [Theory]

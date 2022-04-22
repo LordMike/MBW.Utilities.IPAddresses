@@ -8,17 +8,10 @@ public partial struct IpAddressNetworkV4
 {
     public override string ToString()
     {
-        return ToString(false);
-    }
-
-    public string ToString(bool forceCidr)
-    {
         StringBuilder sb = new StringBuilder();
 
         sb.Append(NetworkAddress);
-
-        if (forceCidr || _mask != 32)
-            sb.Append("/").Append(_mask.ToString());
+        sb.Append("/").Append(_mask.ToString());
 
         return sb.ToString();
     }
@@ -44,7 +37,7 @@ public partial struct IpAddressNetworkV4
 
         }
 
-        return ToString(false);
+        return ToString();
     }
 
     public void ToString(StringBuilder sb)
@@ -57,9 +50,12 @@ public partial struct IpAddressNetworkV4
         tw.Write(ToString());
     }
 
-    public void ToString(Span<char> span)
+    public void ToString(Span<char> span) => ToString(span, out _);
+
+    public void ToString(Span<char> span, out int written)
     {
         ReadOnlySpan<char> str = ToString().AsSpan();
         str.CopyTo(span);
+        written = str.Length;
     }
 }

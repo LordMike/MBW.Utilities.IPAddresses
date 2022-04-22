@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using FluentAssertions;
+using MBW.Utilities.IPAddresses.Tests.SignaturesLib;
 using Xunit;
 
 namespace MBW.Utilities.IPAddresses.Tests;
@@ -31,7 +32,7 @@ public class IPv6NetworkTests
 
         // This representation is special, and should still be the IPv4 in IPv6 mapped
         expectedIp.ToString().Should().Be(expectedWithoutSlash);
-        parsed.ToString().Should().Be(expected);
+        TestHelpers.TestToStringMethods(parsed, expected);
     }
 
     [Theory]
@@ -98,12 +99,12 @@ public class IPv6NetworkTests
         IpAddressNetworkV6 net = IpAddressNetworkV6.Parse("2001:db8::8a2e:371:7334/96");
 
         net.Mask.Should().Be(96);
-        net.ToString().Should().Be("2001:db8::8a2e:0:0/96");
         net.NetworkAddress.Should().Be((IpAddressV6)"2001:db8::8a2e:0:0");
         net.EndAddress.Should().Be((IpAddressV6)"2001:db8::8a2e:ffff:ffff");
         net.NetworkMask.Should().Be((IpAddressV6)"ffff:ffff:ffff:ffff:ffff:ffff::");
         net.NetworkWildcardMask.Should().Be((IpAddressV6)"::ffff:ffff");
         net.SubnetSize.Should().Be(4294967296);
+        TestHelpers.TestToStringMethods(net, "2001:db8::8a2e:0:0/96");
     }
 
     [Fact]

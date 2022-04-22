@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
+using MBW.Utilities.IPAddresses.Tests.SignaturesLib;
 using Xunit;
 
 namespace MBW.Utilities.IPAddresses.Tests;
@@ -162,7 +163,7 @@ public class IPv4NetworkTests
     {
         IpAddressNetworkV4 network = (IpAddressNetworkV4)networks;
 
-        network.ToString(true).Should().Be(expected);
+        network.ToString().Should().Be(expected);
     }
 
     [Theory]
@@ -171,8 +172,7 @@ public class IPv4NetworkTests
     public void ToStringTests(string networks, string expected)
     {
         IpAddressNetworkV4 network = (IpAddressNetworkV4)networks;
-
-        network.ToString().Should().Be(expected);
+        TestHelpers.TestToStringMethods(network, expected);
     }
 
     [Theory]

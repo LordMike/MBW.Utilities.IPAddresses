@@ -92,5 +92,4 @@ public class ToStringBenchmarks
     [Benchmark]
     [BenchmarkCategory(nameof(IpAddressNetworkV6))]
     public void IPv6Network_ToStringSpan() => _networkV6.ToString(_charBuffer);
-
 }
