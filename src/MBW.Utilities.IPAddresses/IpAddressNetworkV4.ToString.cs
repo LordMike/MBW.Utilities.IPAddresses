@@ -10,8 +10,9 @@ public partial struct IpAddressNetworkV4
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.Append(NetworkAddress);
-        sb.Append("/").Append(_mask.ToString());
+        sb.Append(NetworkAddress)
+            .Append("/")
+            .Append(_mask.ToString());
 
         return sb.ToString();
     }
@@ -30,6 +31,7 @@ public partial struct IpAddressNetworkV4
             // Return 2 octets
             return (asUint >> 24) + "." + ((asUint >> 16) & 0xFF) + "/" + _mask;
         }
+
         if (_mask <= 24 && (asUint & 0xFF) == 0)
         {
             // Return 3 octets
@@ -40,16 +42,8 @@ public partial struct IpAddressNetworkV4
         return ToString();
     }
 
-    public void ToString(StringBuilder sb)
-    {
-        sb.Append(ToString());
-    }
-
-    public void ToString(TextWriter tw)
-    {
-        tw.Write(ToString());
-    }
-
+    public void ToString(StringBuilder sb) => sb.Append(ToString());
+    public void ToString(TextWriter tw) => tw.Write(ToString());
     public void ToString(Span<char> span) => ToString(span, out _);
 
     public void ToString(Span<char> span, out int written)
