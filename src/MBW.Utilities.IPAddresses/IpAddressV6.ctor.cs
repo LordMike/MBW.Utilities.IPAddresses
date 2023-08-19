@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using Dirichlet.Numerics;
 using MBW.Utilities.IPAddresses.Helpers;
+using UInt128 = Dirichlet.Numerics.UInt128;
 
 namespace MBW.Utilities.IPAddresses;
 
